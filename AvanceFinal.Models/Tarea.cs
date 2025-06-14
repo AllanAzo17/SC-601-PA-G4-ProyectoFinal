@@ -9,9 +9,10 @@ namespace AvanceFinal.Models
     public class Tarea
     {
         public int Id { get; set; }
-        public String Package { get; set; }
-        public String DateDeliver { get; set; }
-        public int Priority { get; set; }
         public String Status { get; set; }
+        public string Description { get; set; }
+        public String ExecutionDate { get; set; }
+        public String Package { get; set; }
+        public int Queueid { get; set; }
     }
 }
