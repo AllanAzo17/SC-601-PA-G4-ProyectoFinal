@@ -8,5 +8,6 @@ namespace AvanceFinal
 {
     public class Class1
     {
+        string nombre;
     }
 }
