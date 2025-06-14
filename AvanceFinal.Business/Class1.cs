@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace AvanceFinal.Business
 {
     public class Class1
-    {
+    { 
     }
 }
