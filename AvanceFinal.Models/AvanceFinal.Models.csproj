@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Queue.cs" />
     <Compile Include="Tarea.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

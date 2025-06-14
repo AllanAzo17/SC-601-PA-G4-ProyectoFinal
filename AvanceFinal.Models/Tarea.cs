@@ -13,6 +13,6 @@ namespace AvanceFinal.Models
         public string Description { get; set; }
         public String ExecutionDate { get; set; }
         public String Package { get; set; }
-        public int Queueid { get; set; }
+        public int QueueId { get; set; }
     }
 }
