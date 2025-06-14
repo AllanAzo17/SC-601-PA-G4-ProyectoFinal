@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AvanceFinal.Models
 {
-    public class Tarea
+    public class Task
     {
         public int Id { get; set; }
         public String Status { get; set; }

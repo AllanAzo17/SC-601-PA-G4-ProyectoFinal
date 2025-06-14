@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvanceFinal.Architecture", "AvanceFinal\AvanceFinal.Architecture.csproj", "{65EE942F-0E3C-43E5-AF06-20DCCA55F087}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvanceFinal.Models", "AvanceFinal.Models\AvanceFinal.Models.csproj", "{7F17CE43-7808-4369-855C-0F5CF370E1BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvanceFinal.Mvc", "AvanceFinal.Mvc\AvanceFinal.Mvc.csproj", "{9EFB71D5-DF5C-436A-AFEE-EFDD7DBE1E3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvanceFinal.Repository", "AvanceFinal.Repository\AvanceFinal.Repository.csproj", "{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{9EFB71D5-DF5C-436A-AFEE-EFDD7DBE1E3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EFB71D5-DF5C-436A-AFEE-EFDD7DBE1E3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EFB71D5-DF5C-436A-AFEE-EFDD7DBE1E3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4D84B6A4-BA1D-4CB2-AEA8-D43CBA8CB1B5}</ProjectGuid>
+    <ProjectGuid>{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AvanceFinal.Business</RootNamespace>
-    <AssemblyName>AvanceFinal.Business</AssemblyName>
+    <RootNamespace>AvanceFinal.Repository</RootNamespace>
+    <AssemblyName>AvanceFinal.Repository</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -42,20 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaskBusiness.cs" />
+    <Compile Include="RepositoryBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AvanceFinal.Data\AvanceFinal.Data.csproj">
       <Project>{3e2dfa65-ce41-47d0-ac40-d49bb4b9a825}</Project>
       <Name>AvanceFinal.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AvanceFinal.Models\AvanceFinal.Models.csproj">
-      <Project>{7f17ce43-7808-4369-855c-0f5cf370e1bf}</Project>
-      <Name>AvanceFinal.Models</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AvanceFinal.Repository\AvanceFinal.Repository.csproj">
-      <Project>{5371fc66-aa4b-4fd0-bbd7-d862d5beb2f0}</Project>
-      <Name>AvanceFinal.Repository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
