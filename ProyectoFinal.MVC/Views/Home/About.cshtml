@@ -1,9 +1,170 @@
 ﻿@{
-    ViewBag.Title = "About";
+    ViewBag.Title = "About the Project";
 }
 <main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
+    <h2 id="title">@ViewBag.Title</h2>
 
-    <p>Use this area to provide additional information.</p>
+    <div>
+        <h3>Ingeniería en Sistemas de Computación</h3>
+        <strong>Proyecto Final</strong><br />
+        <strong>Curso: </strong>Programación Avanzada<br />
+        <strong>Prof: </strong>Alvaro Andrei Miranda Muñoz<br />
+        <strong>Código curso: </strong>SC-601
+    </div>
+    <br />
+
+    <h4>1. Especificación</h4>
+    <p>
+        Proyecto programado grupal a desarrollar para su entrega y exposición en Semana 14/15.
+        Los grupos deben estar conformados por un mínimo de 3 estudiantes y un máximo de 4. Los problemas entre
+        compañeros del grupo deben solucionarse a lo interno de cada grupo.
+    </p>
+    <br />
+
+    <h4>2. Código </h4>
+    <p>
+        El código debe entregarlo durante la primera hora de clase en la semana 14, después de esto no se recibirán
+        proyectos, y perderá la calificación de esta evaluación. Bajo ninguna condición existen prórrogas.
+    </p>
+    <p>Un sólo integrante por grupo subirá al campus virtual un único archivo .zip con su proyecto exportado de .NET. </p>
+    <p>El archivo debe llevar como nombre la siguiente convención:</p>
+    <ul style="list-style-type:none;">
+        <li>SC-601-PA-G[numero_de_grupo]-[inicial_del_dia_de_la_clase]</li>
+        <li>Ejemplo: SC-601-PA-G1-L.zip</li>
+    </ul>
+    <p>
+        Dentro de ese archivo Zip, agregue un archivo de texto con el nombre readme.txt (puede ser un readme.md
+        también) donde indique:
+    </p>
+    <ol>
+        <li>Integrantes finales del grupo. A los que se les asignará la nota del proyecto</li>
+        <li>Enlace del repositorio si lo subió en GitHub o en algún otro</li>
+        <li>
+            Especificación básica del proyecto:
+            <ol type="a">
+                <li>Arquitectura del proyecto (tipos de proyectos que utilizo y contiene el programa) </li>
+                <li>Libraries o paquetes de nuget utilizados</li>
+                <li>Principios de SOLID y patrones de diseño utilizados </li>
+            </ol>
+        </li>
+    </ol>
+    <br />
+    <table border="1" style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
+        <tr style="background-color:#002B5C; color:white; text-align:center;">
+            <th>Nota Final de Proyecto</th>
+        </tr>
+        <tr style="text-align:center; font-weight:bold;">
+            <td>El proyecto será calificado según la rúbrica que se presenta en el programa del curso.</td>
+        </tr>
+    </table>
+    <br />
+    <p>
+        Se evaluarán los temas según hayan sido vistos en clase. Si cumple con los requisitos especificados se asignan todos
+        los puntos del tema, sino se descuentan según se incumpla.
+    </p>
+    <p>
+        La funcionalidad principal debe ser programada por los estudiantes desde cero. El código de cada grupo debe ser
+        desarrollado por cada grupo por separado. Puede incluir librerías o paquetes de nuget pero debe especificarlo en el
+        readme.
+    </p>
+    <br />
+    <p><strong>Consideraciones generales: </strong></p>
+    <ul>
+        <li>Se debe realizar las validaciones que se consideren necesarias como no repetir Ids. </li>
+        <li>Debe utilizar de forma adecuada los tipos de variables, métodos o de arreglos según cada necesidad. </li>
+        <li>
+            Debe escribir el código respetando las convenciones de <strong>naming, coding</strong> y de <strong>style</strong> para nombres de clases,
+            atributos, métodos y con una correcta indentación.
+        </li>
+        <li>
+            Debe contar con un menú que permita la selección de las opciones que vayan a ser presentadas, en el caso de
+            los reportes, presenta un submenú.
+        </li>
+    </ul>
+    <br />
+
+    <h4>3. Enunciado</h4>
+    <h5>Desarrollo de un sistema de ejecución de un Queue de tareas </h5>
+    <p>
+        La empresa desarrolladora de software a la medida (SaM) necesita desarrollar un sistema que permitirá la ejecución
+        automatizada de tareas en una cola de forma sincrónica. Las tareas pueden estar relacionadas con procesamiento de
+        datos, envío de correos electrónicos, generación de reportes, ejecución de scripts etc. El sistema manejará el
+        procesamiento de una tarea a la vez y priorizará la ejecución en función de las necesidades del usuario.
+    </p>
+    <br />
+    <p>Especificaciones Funcionales </p>
+    <ol type="a">
+        <li>
+            Gestión de Tareas
+            <ul>
+                <li>
+                    Los usuarios podrán crear tareas, asignarles prioridad (alta, media, baja) y definir una fecha de
+                    ejecución.
+                </li>
+                <li>Cada tarea tendrá estados como "Pendiente", "En Proceso", "Finalizada", “Fallida". </li>
+                <li>El sistema permitirá la re-ejecución manual de tareas que hayan fallado. </li>
+                <li>
+                    Debe ejecutar primero todas las tareas de mayor prioridad:
+                    <ul>
+                        <li>
+                            Si una tarea de menor prioridad es agregada deberá esperar a que las de mayor prioridad se
+                            ejecuten.
+                        </li>
+                        <li>
+                            Si una tarea de mayor prioridad es agregada debe pasar a un lugar mas alto en el queue para
+                            ser ejecutada apenas termine la tarea en ejecución.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            Queue de Tareas
+            <ul>
+                <li>Las tareas se almacenarán en una cola con prioridades. </li>
+                <li>El sistema procesará las tareas de forma FIFO (First In, First Out) dentro de cada nivel de prioridad. </li>
+                <li>
+                    Podrás implementar una lógica de procesamiento que espere por lo menos 30 segundos antes de
+                    iniciar la siguiente tarea
+                </li>
+            </ul>
+        </li>
+        <li>
+            Ejecución de Tareas
+            <ul>
+                <li>Un "Worker" o "Job" en segundo plano gestionará la ejecución de las tareas desde la cola. </li>
+                <li>
+                    Las tareas que se ejecutan pueden tener tiempos de ejecución variados, por lo que debe esperar
+                    hasta que la tarea falle o finalice para continuar con la siguiente.
+                </li>
+                <li>
+                    Para evitar el bloqueo de la interfaz mediante un Request interminable puede responder mediante un
+                    ActionResult que ha agregado una tarea a la cola para terminar su ejecución con un <strong>StatusCode</strong> de
+                    <strong>200 OK</strong>, y posteriormente las tareas se podrán visualizar en el panel de monitoreo.
+                </li>
+                <li>Una vez que una tarea ha sido iniciada esta no puede ser ni eliminada ni modificada. </li>
+            </ul>
+        </li>
+        <li>
+            Monitoreo y Notificación
+            <ul>
+                <li>
+                    Los usuarios podrán ver un panel con el estado actual de las tareas en cola (pendiente, en ejecución,
+                    completada).
+                </li>
+                <li>
+                    Envío de notificaciones (como correos electrónicos o un detalle que explique por que falló) cuando las
+                    tareas finalicen o fallen.
+                </li>
+                <li>
+                    Logs detallados para monitorear el resultado de la ejecución de cada tarea y que guarden un historial
+                    de las tareas ejecutadas.
+                </li>
+            </ul>
+        </li>
+    </ol>
+    <br />
+    <p>Especificaciones Técnicas (WIP)</p>
+    <br />
+
 </main>
