@@ -1,0 +1,35 @@
+﻿@model List<ProyectoFinal.Models.Queue>
+
+@{
+    ViewBag.Title = "Queue List";
+}
+
+<h2>Queue List</h2>
+
+<p>
+    @Html.ActionLink("Create New Queue", "Create")
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Priority</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Priority</td>
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
