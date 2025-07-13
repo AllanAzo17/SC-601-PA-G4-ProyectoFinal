@@ -1,0 +1,22 @@
+﻿@model ProyectoFinal.Models.Queue
+
+@{
+    ViewBag.Title = "Queue Details";
+}
+
+<h2>Queue Details</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>ID</dt>
+        <dd>@Model.Id</dd>
+
+        <dt>Priority</dt>
+        <dd>@Model.Priority</dd>
+    </dl>
+</div>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "btn btn-warning" }) |
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+</p>

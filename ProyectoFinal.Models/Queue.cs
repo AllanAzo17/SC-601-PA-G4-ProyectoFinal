@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProyectoFinal.Models
 {
-    internal class Queue
+    public class Queue
     {
         public int Id { get; set; }
         public int Priority { get; set; }

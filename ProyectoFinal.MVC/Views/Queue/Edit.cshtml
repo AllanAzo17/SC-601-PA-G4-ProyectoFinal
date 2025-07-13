@@ -1,0 +1,23 @@
+﻿@model ProyectoFinal.Models.Queue
+
+@{
+    ViewBag.Title = "Edit Queue";
+}
+
+<h2>Edit Queue</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(model => model.Id)
+
+    <div class="form-horizontal">
+        <hr />
+        <div class="form-group">
+            @Html.LabelFor(model => model.Priority)
+            @Html.TextBoxFor(model => model.Priority, new { @class = "form-control" })
+        </div>
+        <br />
+        <input type="submit" value="Save" class="btn btn-primary" />
+        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+}
