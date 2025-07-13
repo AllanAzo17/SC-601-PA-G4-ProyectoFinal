@@ -189,6 +189,8 @@
     <Content Include="Views\Queue\Details.cshtml" />
     <Content Include="Views\Queue\Edit.cshtml" />
     <Content Include="Views\Queue\Index.cshtml" />
+    <Content Include="Views\Task\TaskLog.cshtml" />
+    <Content Include="Views\Task\Dashboard.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
