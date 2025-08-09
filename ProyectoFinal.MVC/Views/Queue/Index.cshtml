@@ -1,35 +1,346 @@
-﻿@model List<ProyectoFinal.Models.Queue>
-
 @{
-    ViewBag.Title = "Queue List";
+    ViewBag.Title = "Cola de Tareas";
+    var queueStatus = ViewBag.QueueStatus as IEnumerable<ProyectoFinal.Data.TaskQueue> ?? new List<ProyectoFinal.Data.TaskQueue>();
+    var executionHistory = ViewBag.ExecutionHistory as IEnumerable<ProyectoFinal.Data.TaskLog> ?? new List<ProyectoFinal.Data.TaskLog>();
+    var isProcessorRunning = ViewBag.IsProcessorRunning;
 }
 
-<h2>Queue List</h2>
+<div class="container-fluid">
+    <h2 class="mb-4">Cola de Tareas</h2>
 
-<p>
-    @Html.ActionLink("Create New Queue", "Create")
-</p>
+    <!-- Controles del Procesador -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Control del Procesador</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Estado del Procesador:</strong> 
+                                <span class="badge @(isProcessorRunning ? "bg-success" : "bg-danger")">
+                                    @(isProcessorRunning ? "Ejecutándose" : "Detenido")
+                                </span>
+                            </p>
+                            <p><strong>Tareas en Cola:</strong> 
+                                <span id="queueCount" class="badge bg-info">@queueStatus.Count()</span>
+                            </p>
+                            <p><small class="text-muted">Ultima actualizacion: <span id="lastUpdate">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            @if (isProcessorRunning)
+                            {
+                                <button id="stopProcessor" class="btn btn-danger">Detener Procesador</button>
+                            }
+                            else
+                            {
+                                <button id="startProcessor" class="btn btn-success">Iniciar Procesador</button>
+                            }
+                            <button id="processNext" class="btn btn-primary">Procesar Siguiente</button>
+                            <button id="refreshTables" class="btn btn-outline-secondary">Actualizar Tablas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Priority</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Id</td>
-                <td>@item.Priority</td>
-                <td>
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="row">
+        <!-- Estado de la Cola -->
+        <div class="col-md-6">
+            <div class="card" id="queueCard">
+                <div class="card-header">
+                    <h5>Estado de la Cola</h5>
+                </div>
+                <div class="card-body">
+                    @if (queueStatus.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Posición</th>
+                                        <th>Título</th>
+                                        <th>Prioridad</th>
+                                        <th>Encolado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queueTableBody">
+                                    @{int position = 1;}
+                                    @foreach (var item in queueStatus)
+                                    {
+                                        <tr>
+                                            <td>@position</td>
+                                            <td>@item.Task.Title</td>
+                                            <td>
+                                                <span class="badge @(item.Task.Priority == "Alta" ? "bg-danger" : item.Task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                                    @item.Task.Priority
+                                                </span>
+                                            </td>
+                                            <td>@(item.EnqueuedAt?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "Tasks", new { id = item.TaskId })" class="btn btn-sm btn-outline-primary">Ver</a>
+                                            </td>
+                                        </tr>
+                                        position++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted" id="queueEmptyMessage">No hay tareas en la cola.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Ejecución -->
+        <div class="col-md-6">
+            <div class="card" id="historyCard">
+                <div class="card-header">
+                    <h5>Historial de Ejecucion</h5>
+                </div>
+                <div class="card-body">
+                    @if (executionHistory.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tarea</th>
+                                        <th>Estado</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    @foreach (var log in executionHistory.Take(10))
+                                    {
+                                        <tr>
+                                            <td>@log.Task.Title</td>
+                                            <td>
+                                                <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
+                                                    @(log.Success == true ? "Exitoso" : "Fallido")
+                                                </span>
+                                            </td>
+                                            <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                            <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                            <td>
+                                                <a href="@Url.Action("TaskHistory", "Queue", new { id = log.TaskId })" class="btn btn-sm btn-outline-info">Detalles</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        if (executionHistory.Count() > 10)
+                        {
+                            <a href="@Url.Action("History", "Queue")" class="btn btn-outline-primary btn-sm">Ver historial completo</a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted" id="historyEmptyMessage">No hay historial de ejecucion.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Actualiza el estado del procesador, contador de cola y timestamp
+            function updateProcessorStatus() {
+                $.get('@Url.Action("Status", "Queue")')
+                    .done(function (data) {
+                        var statusBadge = $('.badge:contains("Ejecutándose"), .badge:contains("Detenido")');
+                        if (data.isProcessorRunning) {
+                            statusBadge.removeClass('bg-danger').addClass('bg-success').text('Ejecutándose');
+                            $('#startProcessor').hide();
+                            $('#stopProcessor').show();
+                        } else {
+                            statusBadge.removeClass('bg-success').addClass('bg-danger').text('Detenido');
+                            $('#stopProcessor').hide();
+                            $('#startProcessor').show();
+                        }
+                        
+                        if (data.queueCount !== undefined) {
+                            $('#queueCount').text(data.queueCount);
+                        }
+                        
+                        if (data.lastUpdate) {
+                            $('#lastUpdate').text(data.lastUpdate);
+                        }
+                    })
+                    .fail(function () {
+                        console.log('Error obteniendo estado del procesador');
+                    });
+            }
+
+            // Actualiza las tablas de cola y historial con datos del servidor
+            function updateTables() {
+                $('#queueCard .table-responsive, #historyCard .table-responsive').addClass('opacity-50');
+                
+                $.get('@Url.Action("TableData", "Queue")')
+                    .done(function (data) {
+                        console.log('Datos recibidos:', data);
+                        
+                        var queueTableBody = $('#queueTableBody');
+                        if (data.queueStatus && data.queueStatus.length > 0) {
+                            var queueHtml = '';
+                            data.queueStatus.forEach(function(item, index) {
+                                var priorityClass = item.priority === 'Alta' ? 'bg-danger' : 
+                                                   item.priority === 'Media' ? 'bg-warning' : 'bg-secondary';
+                                queueHtml += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${item.title}</td>
+                                        <td><span class="badge ${priorityClass}">${item.priority}</span></td>
+                                        <td>${item.enqueuedAt}</td>
+                                        <td><a href="@Url.Action("Details", "Tasks")/${item.taskId}" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                                    </tr>
+                                `;
+                            });
+                            queueTableBody.html(queueHtml);
+                            $('#queueEmptyMessage').hide();
+                        } else {
+                            queueTableBody.html('');
+                            $('#queueEmptyMessage').show();
+                        }
+                        
+                        var historyTableBody = $('#historyTableBody');
+                        if (data.executionHistory && data.executionHistory.length > 0) {
+                            var historyHtml = '';
+                            data.executionHistory.forEach(function(item) {
+                                var successClass = item.success ? 'bg-success' : 'bg-danger';
+                                var successText = item.success ? 'Exitoso' : 'Fallido';
+                                historyHtml += `
+                                    <tr>
+                                        <td>${item.title}</td>
+                                        <td><span class="badge ${successClass}">${successText}</span></td>
+                                        <td>${item.executionStart}</td>
+                                        <td>${item.executionEnd}</td>
+                                        <td><a href="@Url.Action("TaskHistory", "Queue")/${item.taskId}" class="btn btn-sm btn-outline-info">Detalles</a></td>
+                                    </tr>
+                                `;
+                            });
+                            historyTableBody.html(historyHtml);
+                            $('#historyEmptyMessage').hide();
+                        } else {
+                            historyTableBody.html('');
+                            $('#historyEmptyMessage').show();
+                        }
+                        
+                        console.log('Tablas actualizadas correctamente');
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.log('Error actualizando tablas:', error);
+                        console.log('Status:', status);
+                        console.log('Response:', xhr.responseText);
+                    })
+                    .always(function () {
+                        $('#queueCard .table-responsive, #historyCard .table-responsive').removeClass('opacity-50');
+                    });
+            }
+
+            // Ejecuta todas las actualizaciones de estado y tablas
+            function updateAll() {
+                updateProcessorStatus();
+                updateTables();
+            }
+
+            // Controla el inicio del procesador automático
+            $('#startProcessor').click(function () {
+                var button = $(this);
+                button.prop('disabled', true).text('Iniciando...');
+                
+                $.post('@Url.Action("StartProcessor", "Queue")')
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Procesador iniciado correctamente');
+                            updateAll();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    })
+                    .always(function () {
+                        button.prop('disabled', false).text('Iniciar Procesador');
+                    });
+            });
+
+            // Controla la detención del procesador automático
+            $('#stopProcessor').click(function () {
+                var button = $(this);
+                button.prop('disabled', true).text('Deteniendo...');
+                
+                $.post('@Url.Action("StopProcessor", "Queue")')
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Procesador detenido correctamente');
+                            updateAll();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    })
+                    .always(function () {
+                        button.prop('disabled', false).text('Detener Procesador');
+                    });
+            });
+
+            // Procesa manualmente la siguiente tarea de la cola
+            $('#processNext').click(function () {
+                var button = $(this);
+                button.prop('disabled', true).text('Procesando...');
+                
+                $.post('@Url.Action("ProcessNext", "Queue")')
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Siguiente tarea procesada');
+                            updateAll();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    })
+                    .always(function () {
+                        button.prop('disabled', false).text('Procesar Siguiente');
+                    });
+            });
+
+            // Actualiza manualmente las tablas de cola e historial
+            $('#refreshTables').click(function () {
+                var button = $(this);
+                button.prop('disabled', true).text('Actualizando...');
+                
+                updateAll();
+                
+                setTimeout(function() {
+                    button.prop('disabled', false).text('Actualizar Tablas');
+                }, 1000);
+            });
+
+            // Actualización automática cada 10 segundos para mantener datos frescos
+            setInterval(function () {
+                updateAll();
+            }, 10000);
+
+            // Carga inicial de datos al cargar la página
+            updateAll();
+        });
+    </script>
+} 

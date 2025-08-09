@@ -1,0 +1,111 @@
+@model IEnumerable<ProyectoFinal.Data.TaskLog>
+@{
+    ViewBag.Title = "Historial de Ejecución";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>Historial de Ejecucion</h2>
+            <a href="@Url.Action("Index", "Queue")" class="btn btn-outline-secondary">Volver a Cola</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Historial Completo de Ejecucion</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tarea</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                                <th>Estado</th>
+                                <th>Duracion</th>
+                                <th>Mensaje de Error</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.OrderByDescending(l => l.ExecutionStart))
+                            {
+                                <tr>
+                                    <td>@log.Task.Title</td>
+                                    <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td>
+                                        <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
+                                            @(log.Success == true ? "Exitoso" : "Fallido")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
+                                        {
+                                            var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
+                                            @duration.ToString(@"mm\:ss")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(log.ErrorMessage))
+                                        {
+                                            <span class="text-danger">@log.ErrorMessage</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("TaskHistory", "Queue", new { id = log.TaskId })" class="btn btn-sm btn-outline-info">Ver Logs</a>
+                                        @if (log.Success == false)
+                                        {
+                                            <button class="btn btn-sm btn-outline-warning retry-task" data-task-id="@log.TaskId">Reintentar</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No hay historial de ejecución disponible.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Reintenta tareas fallidas desde el historial de ejecución
+            $('.retry-task').click(function () {
+                var taskId = $(this).data('task-id');
+                var button = $(this);
+                
+                $.post('@Url.Action("Retry", "Queue")', { id: taskId })
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Tarea agregada a la cola para reintento');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    });
+            });
+        });
+    </script>
+} 

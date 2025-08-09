@@ -1,0 +1,180 @@
+@model IEnumerable<ProyectoFinal.Data.TaskLog>
+@{
+    ViewBag.Title = "Historial de Tarea";
+    var task = ViewBag.Task as ProyectoFinal.Data.Task;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>Historial de Tarea: @task.Title</h2>
+            <a href="@Url.Action("Index", "Queue")" class="btn btn-outline-secondary">Volver a Cola</a>
+        </div>
+    </div>
+
+    <!-- Información de la Tarea -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Informacion de la Tarea</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Titulo:</strong> @task.Title</p>
+                            <p><strong>Descripcion:</strong> @task.Description</p>
+                            <p><strong>Prioridad:</strong> 
+                                <span class="badge @(task.Priority == "Alta" ? "bg-danger" : task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                    @task.Priority
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Estado:</strong> 
+                                <span class="badge @(task.Status == "Pendiente" ? "bg-warning" : task.Status == "EnProceso" ? "bg-info" : task.Status == "Finalizada" ? "bg-success" : "bg-danger")">
+                                    @task.Status
+                                </span>
+                            </p>
+                            <p><strong>Fecha Programada:</strong> @task.ScheduledDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p><strong>Fecha Creacion:</strong> @(task.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Logs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Historial de Ejecucion</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Fin</th>
+                                        <th>Estado</th>
+                                        <th>Duracion</th>
+                                        <th>Mensaje de Error</th>
+                                        <th>Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in Model.OrderByDescending(l => l.ExecutionStart))
+                                    {
+                                        <tr>
+                                            <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                            <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                            <td>
+                                                <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
+                                                    @(log.Success == true ? "Exitoso" : "Fallido")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
+                                                {
+                                                    var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
+                                                    @duration.ToString(@"mm\:ss")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(log.ErrorMessage))
+                                                {
+                                                    <span class="text-danger">@log.ErrorMessage</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(log.LogDetails))
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#logModal-@log.LogId">
+                                                        Ver Detalles
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Modales para detalles de logs -->
+                        foreach (var log in Model)
+                        {
+                            if (!string.IsNullOrEmpty(log.LogDetails))
+                            {
+                                <div class="modal fade" id="logModal-@log.LogId" tabindex="-1" aria-labelledby="logModalLabel-@log.LogId" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="logModalLabel-@log.LogId">Detalles de Ejecucion</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Fecha Inicio:</strong> @(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</p>
+                                                        <p><strong>Fecha Fin:</strong> @(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</p>
+                                                        <p><strong>Estado:</strong> 
+                                                            <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
+                                                                @(log.Success == true ? "Exitoso" : "Fallido")
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
+                                                        {
+                                                            var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
+                                                            <p><strong>Duracion:</strong> @duration.ToString(@"mm\:ss")</p>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(log.ErrorMessage))
+                                                        {
+                                                            <p><strong>Error:</strong> <span class="text-danger">@log.ErrorMessage</span></p>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h6>Detalles de la Ejecucion:</h6>
+                                                        <pre class="bg-light p-3 rounded">@log.LogDetails</pre>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay historial de ejecución para esta tarea.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

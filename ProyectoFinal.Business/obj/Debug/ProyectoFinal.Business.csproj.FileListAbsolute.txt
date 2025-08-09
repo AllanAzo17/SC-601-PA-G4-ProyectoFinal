@@ -1,0 +1,15 @@
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\obj\Debug\ProyectoFinal.Business.csproj.AssemblyReference.cache
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\obj\Debug\ProyectoFinal.Business.csproj.CoreCompileInputs.cache
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Business.dll
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Business.pdb
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Data.dll
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Repository.dll
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\EntityFramework.dll
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Data.pdb
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Data.dll.config
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Repository.pdb
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\ProyectoFinal.Repository.dll.config
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\bin\Debug\EntityFramework.xml
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\obj\Debug\Proyecto.F7459BA6.Up2Date
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\obj\Debug\ProyectoFinal.Business.dll
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Business\obj\Debug\ProyectoFinal.Business.pdb

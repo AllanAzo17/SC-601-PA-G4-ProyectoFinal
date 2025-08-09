@@ -7,16 +7,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AvanceFinal.Data
+namespace ProyectoFinal.Data
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class ProyectoFinalDBEntities : DbContext
+    public partial class G4ProyectoFinalDBEntities : DbContext
     {
-        public ProyectoFinalDBEntities()
-            : base("name=ProyectoFinalDBEntities")
+        public G4ProyectoFinalDBEntities()
+            : base("name=G4ProyectoFinalDBEntities")
         {
         }
     
@@ -25,7 +25,11 @@ namespace AvanceFinal.Data
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Queue> Queues { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<TaskLog> TaskLogs { get; set; }
+        public virtual DbSet<TaskQueue> TaskQueues { get; set; }
         public virtual DbSet<Task> Tasks { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<TaskSummary> TaskSummaries { get; set; }
     }
 }

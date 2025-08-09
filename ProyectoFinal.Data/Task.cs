@@ -7,20 +7,36 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AvanceFinal.Data
+namespace ProyectoFinal.Data
 {
     using System;
     using System.Collections.Generic;
     
     public partial class Task
     {
-        public int TaskID { get; set; }
-        public string Status { get; set; }
-        public string Description { get; set; }
-        public System.DateTime ExecutionDate { get; set; }
-        public string Package { get; set; }
-        public Nullable<int> QueueID { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Task()
+        {
+            this.Notifications = new HashSet<Notification>();
+            this.TaskLogs = new HashSet<TaskLog>();
+            this.TaskQueues = new HashSet<TaskQueue>();
+        }
     
-        public virtual Queue Queue { get; set; }
+        public int TaskId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Priority { get; set; }
+        public System.DateTime ScheduledDate { get; set; }
+        public string Status { get; set; }
+        public Nullable<System.DateTime> CreatedAt { get; set; }
+        public int CreatedBy { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Notification> Notifications { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TaskLog> TaskLogs { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TaskQueue> TaskQueues { get; set; }
+        public virtual User User { get; set; }
     }
 }

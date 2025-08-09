@@ -1,0 +1,140 @@
+﻿@model IEnumerable<ProyectoFinal.Data.Task>
+
+@{
+    ViewBag.Title = "Gestión de Tareas";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>Gestión de Tareas</h2>
+            <a href="@Url.Action("Create", "Tasks")" class="btn btn-primary">Crear Nueva Tarea</a>
+            <a href="@Url.Action("Index", "Queue")" class="btn btn-info">Ver Cola</a>
+            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-success">Dashboard</a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Lista de Tareas</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Descripción</th>
+                            <th>Prioridad</th>
+                            <th>Fecha Programada</th>
+                            <th>Estado</th>
+                            <th>Fecha Creación</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Title</td>
+                                <td>@(item.Description?.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                                <td>
+                                    <span class="badge @(item.Priority == "Alta" ? "bg-danger" : item.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                        @item.Priority
+                                    </span>
+                                </td>
+                                <td>@item.ScheduledDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge @(item.Status == "Pendiente" ? "bg-warning" : item.Status == "EnProceso" ? "bg-info" : item.Status == "Finalizada" ? "bg-success" : "bg-danger")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                <td>@(item.User?.Username ?? "N/A")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Details", "Tasks", new { id = item.TaskId })" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        
+                                        @if (item.Status != "EnProceso" && item.Status != "Finalizada")
+                                        {
+                                            <a href="@Url.Action("Edit", "Tasks", new { id = item.TaskId })" class="btn btn-sm btn-outline-warning">Editar</a>
+                                        }
+                                        
+                                        @if (item.Status == "Pendiente")
+                                        {
+                                            <button class="btn btn-sm btn-outline-info enqueue-task" data-task-id="@item.TaskId">Encolar</button>
+                                        }
+                                        
+                                        @if (item.Status == "Fallida")
+                                        {
+                                            <button class="btn btn-sm btn-outline-warning retry-task" data-task-id="@item.TaskId">Reintentar</button>
+                                        }
+                                        
+                                        @if (item.Status != "EnProceso" && item.Status != "Finalizada")
+                                        {
+                                            <a href="@Url.Action("Delete", "Tasks", new { id = item.TaskId })" class="btn btn-sm btn-outline-danger" 
+                                               onclick="return confirm('¿Está seguro de que desea eliminar esta tarea?')">Eliminar</a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Agrega tareas pendientes a la cola de procesamiento
+            $('.enqueue-task').click(function () {
+                var taskId = $(this).data('task-id');
+                var button = $(this);
+                
+                $.post('@Url.Action("Enqueue", "Tasks")', { id: taskId })
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Tarea agregada a la cola');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    });
+            });
+
+            // Reintenta tareas fallidas agregándolas nuevamente a la cola
+            $('.retry-task').click(function () {
+                var taskId = $(this).data('task-id');
+                var button = $(this);
+                
+                $.post('@Url.Action("Retry", "Tasks")', { id: taskId })
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Tarea agregada a la cola para reintento');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    });
+            });
+        });
+    </script>
+}

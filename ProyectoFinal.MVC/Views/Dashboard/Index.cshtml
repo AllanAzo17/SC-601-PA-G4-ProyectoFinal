@@ -1,0 +1,240 @@
+@{
+    ViewBag.Title = "Dashboard - Sistema de Cola de Tareas";
+    var summary = ViewBag.Summary as ProyectoFinal.Business.Models.TaskDashboardSummary;
+    var recentTasks = ViewBag.RecentTasks as IEnumerable<ProyectoFinal.Data.Task> ?? new List<ProyectoFinal.Data.Task>();
+    var pendingTasks = ViewBag.PendingTasks as IEnumerable<ProyectoFinal.Data.Task> ?? new List<ProyectoFinal.Data.Task>();
+    var failedTasks = ViewBag.FailedTasks as IEnumerable<ProyectoFinal.Data.Task> ?? new List<ProyectoFinal.Data.Task>();
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Dashboard - Sistema de Cola de Tareas</h2>
+
+    <!-- Resumen de Tareas -->
+    @if (summary != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Tareas</h5>
+                        <h2>@summary.TotalTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Pendientes</h5>
+                        <h2>@summary.PendingTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">En Proceso</h5>
+                        <h2>@summary.InProgressTasks</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Completadas</h5>
+                        <h2>@summary.CompletedTasks</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Tareas Pendientes -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Tareas Pendientes</h5>
+                </div>
+                <div class="card-body">
+                    @if (pendingTasks.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Titulo</th>
+                                        <th>Prioridad</th>
+                                        <th>Fecha Programada</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in pendingTasks.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@task.Title</td>
+                                            <td>
+                                                <span class="badge @(task.Priority == "Alta" ? "bg-danger" : task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                                    @task.Priority
+                                                </span>
+                                            </td>
+                                            <td>@task.ScheduledDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.TaskId })" class="btn btn-sm btn-outline-primary">Ver</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        if (pendingTasks.Count() > 5)
+                        {
+                            <a href="@Url.Action("Index", "Tasks")" class="btn btn-outline-primary btn-sm">Ver todas</a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay tareas pendientes.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Tareas Fallidas -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Tareas Fallidas</h5>
+                </div>
+                <div class="card-body">
+                    @if (failedTasks.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Titulo</th>
+                                        <th>Prioridad</th>
+                                        <th>Fecha Creacion</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in failedTasks.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@task.Title</td>
+                                            <td>
+                                                <span class="badge @(task.Priority == "Alta" ? "bg-danger" : task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                                    @task.Priority
+                                                </span>
+                                            </td>
+                                            <td>@(task.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-warning retry-task" data-task-id="@task.TaskId">Reintentar</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        if (failedTasks.Count() > 5)
+                        {
+                            <a href="@Url.Action("Index", "Tasks")" class="btn btn-outline-primary btn-sm">Ver todas</a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay tareas fallidas.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tareas Recientes -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Tareas Recientes</h5>
+                </div>
+                <div class="card-body">
+                    @if (recentTasks.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Titulo</th>
+                                        <th>Descripcion</th>
+                                        <th>Prioridad</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Creacion</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in recentTasks)
+                                    {
+                                        <tr>
+                                            <td>@task.Title</td>
+                                            <td>@(task.Description?.Length > 50 ? task.Description.Substring(0, 50) + "..." : task.Description)</td>
+                                            <td>
+                                                <span class="badge @(task.Priority == "Alta" ? "bg-danger" : task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
+                                                    @task.Priority
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(task.Status == "Pendiente" ? "bg-warning" : task.Status == "EnProceso" ? "bg-info" : task.Status == "Finalizada" ? "bg-success" : "bg-danger")">
+                                                    @task.Status
+                                                </span>
+                                            </td>
+                                            <td>@(task.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.TaskId })" class="btn btn-sm btn-outline-primary">Ver</a>
+                                                @if (task.Status == "Fallida")
+                                                {
+                                                    <button class="btn btn-sm btn-outline-warning retry-task" data-task-id="@task.TaskId">Reintentar</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay tareas recientes.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Reintenta tareas fallidas desde el dashboard
+            $('.retry-task').click(function () {
+                var taskId = $(this).data('task-id');
+                var button = $(this);
+                
+                $.post('@Url.Action("Retry", "Tasks")', { id: taskId })
+                    .done(function (response) {
+                        if (response.success) {
+                            alert('Tarea agregada a la cola para reintento');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Error al procesar la solicitud');
+                    });
+            });
+        });
+    </script>
+} 
