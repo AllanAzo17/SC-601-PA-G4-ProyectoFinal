@@ -1,29 +1,25 @@
 ﻿using ProyectoFinal.Data;
 using ProyectoFinal.Repository;
-using ProyectoFinal.Business.Interfaces;
-using ProyectoFinal.Business.Services;
 using ProyectoFinal.Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TaskEntity = ProyectoFinal.Data.Task;
 
 namespace ProyectoFinal.Business
 {
-    public class TaskBusiness : ITaskService
+    public class TaskBusiness
     {
         private readonly IRepositoryTask repositoryTask;
         private readonly IRepositoryTaskQueue taskQueueRepository;
-        private readonly INotificationService notificationService;
 
         public TaskBusiness()
         {
             repositoryTask = new RepositoryTask();
             taskQueueRepository = new RepositoryTaskQueue();
-            notificationService = new NotificationService(new RepositoryTaskLog());
         }
 
+        // Obtiene una tarea específica o todas las tareas según el ID proporcionado
         public IEnumerable<TaskEntity> Get(int? id)
         {
             var task = new List<TaskEntity>();
@@ -35,16 +31,19 @@ namespace ProyectoFinal.Business
             return task;
         }
 
+        // Obtiene todas las tareas del repositorio
         public IEnumerable<TaskEntity> GetAllTasks()
         {
             return repositoryTask.GetAll();
         }
 
+        // Obtiene una tarea específica por su ID
         public TaskEntity GetTaskById(int id)
         {
             return repositoryTask.GetById(id);
         }
 
+        // Crea una nueva tarea con estado "Pendiente" y fecha de creación actual
         public int CreateTask(TaskEntity entity)
         {
             entity.Status = "Pendiente";
@@ -53,6 +52,7 @@ namespace ProyectoFinal.Business
             return entity.TaskId;
         }
 
+        // Guarda o actualiza una tarea según el ID, evitando modificar tareas en proceso o finalizadas
         public int Save(int id, TaskEntity entity)
         {
             if (id <= 0)
@@ -64,7 +64,7 @@ namespace ProyectoFinal.Business
                 var exist = repositoryTask.GetById(id);
                 if (exist != null)
                 {
-                    if (exist.Status != "EnProceso" && exist.Status != "Finalizada")
+                    if (exist.Status != "En Proceso" && exist.Status != "Finalizada")
                     {
                         exist.Title = entity.Title;
                         exist.Description = entity.Description;
@@ -78,10 +78,11 @@ namespace ProyectoFinal.Business
             }
         }
 
+        // Actualiza una tarea existente solo si no está en proceso o finalizada
         public void UpdateTask(TaskEntity entity)
         {
             var exist = repositoryTask.GetById(entity.TaskId);
-            if (exist != null && exist.Status != "EnProceso" && exist.Status != "Finalizada")
+                            if (exist != null && exist.Status != "En Proceso" && exist.Status != "Finalizada")
             {
                 exist.Title = entity.Title;
                 exist.Description = entity.Description;
@@ -92,55 +93,45 @@ namespace ProyectoFinal.Business
             }
         }
 
+        // Elimina una tarea solo si no está en proceso o finalizada
         public void DeleteTask(int id)
         {
             var task = repositoryTask.GetById(id);
-            if (task != null && task.Status != "EnProceso" && task.Status != "Finalizada")
+                            if (task != null && task.Status != "En Proceso" && task.Status != "Finalizada")
             {
                 repositoryTask.Delete(id);
             }
         }
 
+        // Alias para DeleteTask
         public void Delete(int id)
         {
             DeleteTask(id);
         }
 
+        // Filtra tareas por estado específico
         public IEnumerable<TaskEntity> GetTasksByStatus(string status)
         {
             return repositoryTask.GetAll().Where(t => t.Status == status);
         }
 
+        // Filtra tareas por prioridad específica
         public IEnumerable<TaskEntity> GetTasksByPriority(string priority)
         {
             return repositoryTask.GetAll().Where(t => t.Priority == priority);
         }
 
+        // Agrega una tarea pendiente a la cola de procesamiento evitando duplicados
         public void EnqueueTask(int taskId)
         {
             var task = repositoryTask.GetById(taskId);
             if (task != null && task.Status == "Pendiente")
             {
-                var queueItem = new TaskQueue
-                {
-                    TaskId = taskId,
-                    EnqueuedAt = DateTime.Now
-                };
-                taskQueueRepository.Add(queueItem);
+                taskQueueRepository.AddToQueue(taskId);
             }
         }
 
-        public void RetryFailedTask(int taskId)
-        {
-            var task = repositoryTask.GetById(taskId);
-            if (task != null && task.Status == "Fallida")
-            {
-                task.Status = "Pendiente";
-                repositoryTask.Update(task);
-                EnqueueTask(taskId);
-            }
-        }
-
+        // Genera un resumen estadístico de todas las tareas por estado
         public TaskDashboardSummary GetTaskSummary()
         {
             var allTasks = repositoryTask.GetAll();
@@ -148,7 +139,7 @@ namespace ProyectoFinal.Business
             {
                 TotalTasks = allTasks.Count(),
                 PendingTasks = allTasks.Count(t => t.Status == "Pendiente"),
-                InProgressTasks = allTasks.Count(t => t.Status == "EnProceso"),
+                InProgressTasks = allTasks.Count(t => t.Status == "En Proceso"),
                 CompletedTasks = allTasks.Count(t => t.Status == "Finalizada"),
                 FailedTasks = allTasks.Count(t => t.Status == "Fallida")
             };

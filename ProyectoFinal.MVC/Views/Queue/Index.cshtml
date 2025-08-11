@@ -1,153 +1,216 @@
-@{
+﻿@{
     ViewBag.Title = "Cola de Tareas";
     var queueStatus = ViewBag.QueueStatus as IEnumerable<ProyectoFinal.Data.TaskQueue> ?? new List<ProyectoFinal.Data.TaskQueue>();
     var executionHistory = ViewBag.ExecutionHistory as IEnumerable<ProyectoFinal.Data.TaskLog> ?? new List<ProyectoFinal.Data.TaskLog>();
     var isProcessorRunning = ViewBag.IsProcessorRunning;
 }
 
-<div class="container-fluid">
-    <h2 class="mb-4">Cola de Tareas</h2>
+<div class="space-y-6">
+    <!-- Hidden antiforgery token for AJAX calls -->
+    @Html.AntiForgeryToken()
+    
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4">
+        <h1 class="text-3xl font-bold text-gray-900">Cola de Tareas</h1>
+        <p class="mt-2 text-sm text-gray-600">Sistema simple de gestión de tareas en cola</p>
+    </div>
 
-    <!-- Controles del Procesador -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Control del Procesador</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Estado del Procesador:</strong> 
-                                <span class="badge @(isProcessorRunning ? "bg-success" : "bg-danger")">
-                                    @(isProcessorRunning ? "Ejecutándose" : "Detenido")
-                                </span>
-                            </p>
-                            <p><strong>Tareas en Cola:</strong> 
-                                <span id="queueCount" class="badge bg-info">@queueStatus.Count()</span>
-                            </p>
-                            <p><small class="text-muted">Ultima actualizacion: <span id="lastUpdate">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            @if (isProcessorRunning)
-                            {
-                                <button id="stopProcessor" class="btn btn-danger">Detener Procesador</button>
-                            }
-                            else
-                            {
-                                <button id="startProcessor" class="btn btn-success">Iniciar Procesador</button>
-                            }
-                            <button id="processNext" class="btn btn-primary">Procesar Siguiente</button>
-                            <button id="refreshTables" class="btn btn-outline-secondary">Actualizar Tablas</button>
-                        </div>
+    <!-- Processor Controls -->
+    <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Control del Procesador</h3>
+                <p class="mt-1 text-sm text-gray-600">
+                    <strong>Iniciar Procesador:</strong> Procesa tareas automáticamente cada 5 segundos<br>
+                    <strong>Procesar Siguiente:</strong> Procesa una tarea manualmente<br>
+                    Las tareas cambian de "Pendiente" → "En Proceso" → "Finalizada"
+                </p>
+            </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Estado del Procesador:</span>
+                        <span id="processorStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(isProcessorRunning ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                            @(isProcessorRunning ? "Ejecutándose" : "Detenido")
+                        </span>
                     </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Tareas en Cola:</span>
+                        <span id="queueCount" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">@queueStatus.Count()</span>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        Última actualización: <span id="lastUpdate">@DateTime.Now.ToString("HH:mm:ss")</span>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                    <button id="processorButton" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="processorButtonText">Iniciar Procesador</span>
+                    </button>
+                    <button id="processNext" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Procesar Siguiente
+                    </button>
+
+
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Estado de la Cola -->
-        <div class="col-md-6">
-            <div class="card" id="queueCard">
-                <div class="card-header">
-                    <h5>Estado de la Cola</h5>
-                </div>
-                <div class="card-body">
-                    @if (queueStatus.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Posición</th>
-                                        <th>Título</th>
-                                        <th>Prioridad</th>
-                                        <th>Encolado</th>
-                                        <th>Acciones</th>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Queue Status -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Estado de la Cola</h3>
+                <p class="mt-1 text-sm text-gray-600">Ordenado por prioridad (Alta → Media → Baja) y fecha de creación (más antigua primero)</p>
+            </div>
+            <div class="p-6">
+                @if (queueStatus.Any())
+                {
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creada</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Encolado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queueTableBody" class="bg-white divide-y divide-gray-200">
+                                @{int position = 1;}
+                                @foreach (var item in queueStatus)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">@position</td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <div class="truncate max-w-32" title="@item.Task.Title">@item.Task.Title</div>
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(item.Task.Priority == "Alta" ? "bg-red-100 text-red-800" : item.Task.Priority == "Media" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800")">
+                                                @item.Task.Priority
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @if (item.Task.CreatedAt.HasValue)
+                                            {
+                                                <div class="font-mono text-xs">@item.Task.CreatedAt.Value.ToString("dd/MM/yyyy")</div>
+                                                <div class="font-mono text-xs text-gray-400">@item.Task.CreatedAt.Value.ToString("HH:mm:ss")</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-400">N/A</span>
+                                            }
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @if (item.EnqueuedAt.HasValue)
+                                            {
+                                                <div class="font-mono text-xs">@item.EnqueuedAt.Value.ToString("dd/MM/yyyy")</div>
+                                                <div class="font-mono text-xs text-gray-400">@item.EnqueuedAt.Value.ToString("HH:mm:ss")</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-400">N/A</span>
+                                            }
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody id="queueTableBody">
-                                    @{int position = 1;}
-                                    @foreach (var item in queueStatus)
-                                    {
-                                        <tr>
-                                            <td>@position</td>
-                                            <td>@item.Task.Title</td>
-                                            <td>
-                                                <span class="badge @(item.Task.Priority == "Alta" ? "bg-danger" : item.Task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
-                                                    @item.Task.Priority
-                                                </span>
-                                            </td>
-                                            <td>@(item.EnqueuedAt?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                            <td>
-                                                <a href="@Url.Action("Details", "Tasks", new { id = item.TaskId })" class="btn btn-sm btn-outline-primary">Ver</a>
-                                            </td>
-                                        </tr>
-                                        position++;
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted" id="queueEmptyMessage">No hay tareas en la cola.</p>
-                    }
-                </div>
+                                    position++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8" id="queueEmptyMessage">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-500">No hay tareas en la cola</p>
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- Historial de Ejecución -->
-        <div class="col-md-6">
-            <div class="card" id="historyCard">
-                <div class="card-header">
-                    <h5>Historial de Ejecucion</h5>
-                </div>
-                <div class="card-body">
-                    @if (executionHistory.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Tarea</th>
-                                        <th>Estado</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Acciones</th>
+        <!-- Execution History -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Historial de Ejecución</h3>
+            </div>
+            <div class="p-6">
+                @if (executionHistory.Any())
+                {
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarea</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inicio</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody" class="bg-white divide-y divide-gray-200">
+                                @foreach (var log in executionHistory.Take(10))
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <div class="truncate max-w-32" title="@log.Task.Title">@log.Task.Title</div>
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(log.Success == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                                @(log.Success == true ? "Exitoso" : "Fallido")
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @if (log.ExecutionStart.HasValue)
+                                            {
+                                                <div class="font-mono text-xs">@log.ExecutionStart.Value.ToString("dd/MM/yyyy")</div>
+                                                <div class="font-mono text-xs text-gray-400">@log.ExecutionStart.Value.ToString("HH:mm:ss")</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-400">N/A</span>
+                                            }
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @if (log.ExecutionEnd.HasValue)
+                                            {
+                                                <div class="font-mono text-xs">@log.ExecutionEnd.Value.ToString("dd/MM/yyyy")</div>
+                                                <div class="font-mono text-xs text-gray-400">@log.ExecutionEnd.Value.ToString("HH:mm:ss")</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-400">N/A</span>
+                                            }
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody id="historyTableBody">
-                                    @foreach (var log in executionHistory.Take(10))
-                                    {
-                                        <tr>
-                                            <td>@log.Task.Title</td>
-                                            <td>
-                                                <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
-                                                    @(log.Success == true ? "Exitoso" : "Fallido")
-                                                </span>
-                                            </td>
-                                            <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                            <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                            <td>
-                                                <a href="@Url.Action("TaskHistory", "Queue", new { id = log.TaskId })" class="btn btn-sm btn-outline-info">Detalles</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        if (executionHistory.Count() > 10)
-                        {
-                            <a href="@Url.Action("History", "Queue")" class="btn btn-outline-primary btn-sm">Ver historial completo</a>
-                        }
-                    }
-                    else
-                    {
-                        <p class="text-muted" id="historyEmptyMessage">No hay historial de ejecucion.</p>
-                    }
-                </div>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <a href="@Url.Action("History", "Queue")" class="text-sm text-blue-600 hover:text-blue-900 transition-colors">
+                            Ver historial completo
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8" id="historyEmptyMessage">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-500">No hay historial de ejecución</p>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -156,191 +219,362 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Actualiza el estado del procesador, contador de cola y timestamp
+            console.log('jQuery cargado:', typeof $ !== 'undefined');
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            console.log('Token obtenido:', token ? 'Sí' : 'No');
+            console.log('Token valor:', token);
+            
+            // Función para actualizar el botón del procesador dinámicamente
+            function updateProcessorButton(isRunning) {
+                var button = $('#processorButton');
+                var buttonText = $('#processorButtonText');
+                var buttonIcon = button.find('svg path');
+                
+                // Asegurar que isRunning sea un boolean
+                var isRunningBool = false;
+                if (isRunning === true || isRunning === "true" || isRunning === 1) {
+                    isRunningBool = true;
+                }
+                
+                if (isRunningBool) {
+                    // Cambiar a botón "Detener" (rojo)
+                    button.removeClass('bg-green-600 hover:bg-green-700').addClass('bg-red-600 hover:bg-red-700');
+                    buttonText.text('Detener Procesador');
+                    buttonIcon.attr('d', 'M21 12a9 9 0 11-18 0 9 9 0 0118 0z M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z');
+                } else {
+                    // Cambiar a botón "Iniciar" (verde)
+                    button.removeClass('bg-red-600 hover:bg-red-700').addClass('bg-green-600 hover:bg-green-700');
+                    buttonText.text('Iniciar Procesador');
+                    buttonIcon.attr('d', 'M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
+                }
+            }
+
+            // Obtiene y actualiza el estado del procesador, contador de cola y timestamp
             function updateProcessorStatus() {
-                $.get('@Url.Action("Status", "Queue")')
-                    .done(function (data) {
-                        var statusBadge = $('.badge:contains("Ejecutándose"), .badge:contains("Detenido")');
-                        if (data.isProcessorRunning) {
-                            statusBadge.removeClass('bg-danger').addClass('bg-success').text('Ejecutándose');
-                            $('#startProcessor').hide();
-                            $('#stopProcessor').show();
+                console.log('updateProcessorStatus: Iniciando consulta de estado...');
+                $.ajax({
+                    url: '@Url.Action("Status", "Queue")',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        // Acceder directamente a las propiedades del objeto JSON
+                        var isRunning = data.isProcessorRunning;
+                        var queueCount = data.queueCount;
+
+                        // Asegurar conversión correcta a boolean
+                        if (isRunning === true || isRunning === "true" || isRunning === 1) {
+                            processorRunning = true;
                         } else {
-                            statusBadge.removeClass('bg-success').addClass('bg-danger').text('Detenido');
-                            $('#stopProcessor').hide();
-                            $('#startProcessor').show();
+                            processorRunning = false;
                         }
+
+                        var statusSpan = $('#processorStatus');
+                        if (isRunning) {
+                            statusSpan.removeClass('bg-red-100 text-red-800').addClass('bg-green-100 text-green-800').text('Ejecutándose');
+                        } else {
+                            statusSpan.removeClass('bg-green-100 text-green-800').addClass('bg-red-100 text-red-800').text('Detenido');
+                        }
+
+                        $('#queueCount').text(queueCount);
+                        $('#lastUpdate').text(new Date().toLocaleTimeString());
                         
-                        if (data.queueCount !== undefined) {
-                            $('#queueCount').text(data.queueCount);
-                        }
-                        
-                        if (data.lastUpdate) {
-                            $('#lastUpdate').text(data.lastUpdate);
-                        }
-                    })
-                    .fail(function () {
-                        console.log('Error obteniendo estado del procesador');
-                    });
+                        // Actualizar el botón dinámicamente con el estado real del servidor
+                        updateProcessorButton(isRunning);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Error obteniendo estado del procesador:', xhr, status, error);
+                    }
+                });
             }
 
             // Actualiza las tablas de cola y historial con datos del servidor
             function updateTables() {
-                $('#queueCard .table-responsive, #historyCard .table-responsive').addClass('opacity-50');
-                
+                console.log('updateTables: Iniciando actualización de tablas...');
                 $.get('@Url.Action("TableData", "Queue")')
                     .done(function (data) {
-                        console.log('Datos recibidos:', data);
+                        console.log('updateTables: Datos recibidos:', data);
                         
-                        var queueTableBody = $('#queueTableBody');
+                        var queueBody = $('#queueTableBody');
+                        var queueEmptyMessage = $('#queueEmptyMessage');
+                        
+                        // Solo actualizar la tabla de cola si hay datos o si está vacía
                         if (data.queueStatus && data.queueStatus.length > 0) {
-                            var queueHtml = '';
+                            console.log('updateTables: Actualizando tabla de cola con', data.queueStatus.length, 'elementos');
+                            queueBody.empty();
                             data.queueStatus.forEach(function(item, index) {
-                                var priorityClass = item.priority === 'Alta' ? 'bg-danger' : 
-                                                   item.priority === 'Media' ? 'bg-warning' : 'bg-secondary';
-                                queueHtml += `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${item.title}</td>
-                                        <td><span class="badge ${priorityClass}">${item.priority}</span></td>
-                                        <td>${item.enqueuedAt}</td>
-                                        <td><a href="@Url.Action("Details", "Tasks")/${item.taskId}" class="btn btn-sm btn-outline-primary">Ver</a></td>
-                                    </tr>
-                                `;
+                                var priorityClass = item.priority === 'Alta' ? 'bg-red-100 text-red-800' :
+                                                  item.priority === 'Media' ? 'bg-yellow-100 text-yellow-800' : 
+                                                  'bg-gray-100 text-gray-800';
+                                
+                                var row = '<tr class="hover:bg-gray-50">' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900">' + (index + 1) + '</td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' +
+                                    '<div class="truncate max-w-32" title="' + (item.title || 'Sin título') + '">' + (item.title || 'Sin título') + '</div></td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap">' +
+                                    '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + priorityClass + '">' +
+                                    (item.priority || 'N/A') + '</span></td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">' + (item.createdAt || 'N/A') + '</td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">' + (item.enqueuedAt || 'N/A') + '</td>' +
+                                    '</tr>';
+                                queueBody.append(row);
                             });
-                            queueTableBody.html(queueHtml);
-                            $('#queueEmptyMessage').hide();
+                            queueEmptyMessage.hide();
+                            queueBody.show();
+                        } else if (queueBody.children().length === 0) {
+                            // Solo mostrar mensaje vacío si la tabla ya está vacía
+                            console.log('updateTables: Tabla de cola ya está vacía, manteniendo estado actual');
                         } else {
-                            queueTableBody.html('');
-                            $('#queueEmptyMessage').show();
+                            console.log('updateTables: No hay datos en la cola, pero manteniendo datos existentes');
                         }
+
+                        var historyBody = $('#historyTableBody');
+                        var historyEmptyMessage = $('#historyEmptyMessage');
                         
-                        var historyTableBody = $('#historyTableBody');
+                        // Solo actualizar la tabla de historial si hay datos o si está vacía
                         if (data.executionHistory && data.executionHistory.length > 0) {
-                            var historyHtml = '';
+                            console.log('updateTables: Actualizando tabla de historial con', data.executionHistory.length, 'elementos');
+                            historyBody.empty();
                             data.executionHistory.forEach(function(item) {
-                                var successClass = item.success ? 'bg-success' : 'bg-danger';
-                                var successText = item.success ? 'Exitoso' : 'Fallido';
-                                historyHtml += `
-                                    <tr>
-                                        <td>${item.title}</td>
-                                        <td><span class="badge ${successClass}">${successText}</span></td>
-                                        <td>${item.executionStart}</td>
-                                        <td>${item.executionEnd}</td>
-                                        <td><a href="@Url.Action("TaskHistory", "Queue")/${item.taskId}" class="btn btn-sm btn-outline-info">Detalles</a></td>
-                                    </tr>
-                                `;
+                                var successClass = item.success ? 'bg-green-100 text-green-800">Exitoso' : 'bg-red-100 text-red-800">Fallido';
+                                
+                                var row = '<tr class="hover:bg-gray-50">' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' +
+                                    '<div class="truncate max-w-32" title="' + (item.title || 'Sin título') + '">' + (item.title || 'Sin título') + '</div></td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap">' +
+                                    '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ' + successClass + '</span></td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">' + (item.executionStart || 'N/A') + '</td>' +
+                                    '<td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">' + (item.executionEnd || 'N/A') + '</td>' +
+                                    '</tr>';
+                                historyBody.append(row);
                             });
-                            historyTableBody.html(historyHtml);
-                            $('#historyEmptyMessage').hide();
+                            historyEmptyMessage.hide();
+                            historyBody.show();
+                        } else if (historyBody.children().length === 0) {
+                            // Solo mostrar mensaje vacío si la tabla ya está vacía
+                            console.log('updateTables: Tabla de historial ya está vacía, manteniendo estado actual');
                         } else {
-                            historyTableBody.html('');
-                            $('#historyEmptyMessage').show();
+                            console.log('updateTables: No hay datos en el historial, pero manteniendo datos existentes');
                         }
-                        
-                        console.log('Tablas actualizadas correctamente');
                     })
                     .fail(function (xhr, status, error) {
                         console.log('Error actualizando tablas:', error);
-                        console.log('Status:', status);
-                        console.log('Response:', xhr.responseText);
-                    })
-                    .always(function () {
-                        $('#queueCard .table-responsive, #historyCard .table-responsive').removeClass('opacity-50');
                     });
             }
 
-            // Ejecuta todas las actualizaciones de estado y tablas
-            function updateAll() {
+            // Actualiza estado del procesador y tablas
+            function refreshAll() {
                 updateProcessorStatus();
                 updateTables();
             }
 
-            // Controla el inicio del procesador automático
-            $('#startProcessor').click(function () {
-                var button = $(this);
-                button.prop('disabled', true).text('Iniciando...');
-                
-                $.post('@Url.Action("StartProcessor", "Queue")')
-                    .done(function (response) {
-                        if (response.success) {
-                            alert('Procesador iniciado correctamente');
-                            updateAll();
-                        } else {
-                            alert('Error: ' + response.message);
-                        }
-                    })
-                    .fail(function () {
-                        alert('Error al procesar la solicitud');
-                    })
-                    .always(function () {
-                        button.prop('disabled', false).text('Iniciar Procesador');
-                    });
-            });
+            // Control de intervalos y estado del procesador
+            var autoProcessingInterval = null;
+            var autoRefreshInterval = null;
+            var processorRunning = false;
+            var initialProcessorState = @Html.Raw(Json.Encode(ViewBag.IsProcessorRunning));
+            if (initialProcessorState === true || initialProcessorState === "true" || initialProcessorState === 1) {
+                processorRunning = true;
+            }
 
-            // Controla la detención del procesador automático
-            $('#stopProcessor').click(function () {
-                var button = $(this);
-                button.prop('disabled', true).text('Deteniendo...');
-                
-                $.post('@Url.Action("StopProcessor", "Queue")')
-                    .done(function (response) {
-                        if (response.success) {
-                            alert('Procesador detenido correctamente');
-                            updateAll();
-                        } else {
-                            alert('Error: ' + response.message);
-                        }
-                    })
-                    .fail(function () {
-                        alert('Error al procesar la solicitud');
-                    })
-                    .always(function () {
-                        button.prop('disabled', false).text('Detener Procesador');
-                    });
-            });
-
-            // Procesa manualmente la siguiente tarea de la cola
-            $('#processNext').click(function () {
-                var button = $(this);
-                button.prop('disabled', true).text('Procesando...');
-                
-                $.post('@Url.Action("ProcessNext", "Queue")')
-                    .done(function (response) {
-                        if (response.success) {
-                            alert('Siguiente tarea procesada');
-                            updateAll();
-                        } else {
-                            alert('Error: ' + response.message);
-                        }
-                    })
-                    .fail(function () {
-                        alert('Error al procesar la solicitud');
-                    })
-                    .always(function () {
-                        button.prop('disabled', false).text('Procesar Siguiente');
-                    });
-            });
-
-            // Actualiza manualmente las tablas de cola e historial
-            $('#refreshTables').click(function () {
-                var button = $(this);
-                button.prop('disabled', true).text('Actualizando...');
-                
-                updateAll();
-                
+            // Configura actualización automática del estado y tablas cada 10 segundos
+            function startAutoRefresh() {
+                // Solo actualizar el estado del procesador inicialmente
                 setTimeout(function() {
-                    button.prop('disabled', false).text('Actualizar Tablas');
+                    updateProcessorStatus();
                 }, 1000);
+                
+                // Primera actualización de tablas después de 5 segundos
+                setTimeout(function() {
+                    updateTables();
+                }, 5000);
+                
+                // Actualizaciones posteriores cada 10 segundos
+                autoRefreshInterval = setInterval(function() {
+                    updateProcessorStatus();
+                    // Solo actualizar tablas si hay cambios significativos
+                    if (processorRunning === true) {
+                        updateTables();
+                    }
+                }, 10000);
+            }
+
+            // Configura procesamiento automático de tareas cada 15 segundos
+            function startAutoProcessing() {
+                autoProcessingInterval = setInterval(function() {
+                    var isRunning = processorRunning === true;
+                    if (isRunning) {
+                        processNextTask();
+                    }
+                }, 15000);
+            }
+
+            // Procesa la siguiente tarea en cola y actualiza las tablas
+            function processNextTask() {
+                $.ajax({
+                    url: '@Url.Action("ProcessNext", "Queue")',
+                    type: 'POST',
+                    data: { __RequestVerificationToken: token },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('Procesamiento automático: ' + response.message);
+                            
+                            // Mostrar mensaje de recarga
+                            var reloadMessage = $('<div class="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded z-50">' +
+                                '<strong>Actualizando:</strong> Recargando página para mostrar cambios...</div>');
+                            $('body').append(reloadMessage);
+                            
+                            // Recargar página después de 1 segundo
+                            setTimeout(function() {
+                                console.log('Procesamiento automático completado, recargando página...');
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            console.log('Procesamiento automático: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Error en procesamiento automático: ' + error);
+                    }
+                });
+            }
+
+            // Detiene todos los intervalos de procesamiento automático
+            function stopAutoProcessing() {
+                if (autoProcessingInterval) {
+                    clearInterval(autoProcessingInterval);
+                    autoProcessingInterval = null;
+                }
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+            }
+
+            // Inicialización del sistema
+            console.log('Iniciando sistema...');
+            
+            // Inicializar el botón del procesador con el estado actual
+            var initialButtonState = @Html.Raw(Json.Encode(ViewBag.IsProcessorRunning));
+            updateProcessorButton(initialButtonState);
+            
+            updateProcessorStatus();
+            
+            // Iniciar actualizaciones automáticas
+            startAutoRefresh();
+            startAutoProcessing();
+            
+            
+            // Event handler unificado para el botón del procesador
+            $(document).on('click', '#processorButton', function() {
+                var button = $(this);
+                var isCurrentlyRunning = processorRunning === true;
+                
+                if (isCurrentlyRunning) {
+                    // Detener procesador
+                    $.ajax({
+                        url: '@Url.Action("Stop", "Queue")',
+                        type: 'POST',
+                        data: { __RequestVerificationToken: token },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                var successMessage = $('<div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">' +
+                                    '<strong>Procesador Detenido:</strong> ' + response.message + '</div>');
+                                $('body').append(successMessage);
+                                
+                                // Actualizar estado inmediatamente
+                                updateProcessorStatus();
+                                
+                                setTimeout(function() {
+                                    successMessage.fadeOut(function() { $(this).remove(); });
+                                }, 3000);
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Error al detener el procesador: ' + error);
+                        }
+                    });
+                } else {
+                    // Iniciar procesador
+                    $.ajax({
+                        url: '@Url.Action("Start", "Queue")',
+                        type: 'POST',
+                        data: { __RequestVerificationToken: token },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                var successMessage = $('<div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">' +
+                                    '<strong>Procesador Iniciado:</strong> ' + response.message + '</div>');
+                                $('body').append(successMessage);
+                                
+                                // Actualizar estado inmediatamente
+                                updateProcessorStatus();
+                                
+                                setTimeout(function() {
+                                    successMessage.fadeOut(function() { 
+                                        $(this).remove(); 
+                                    });
+                                }, 2000);
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Error al iniciar el procesador: ' + error);
+                        }
+                    });
+                }
             });
 
-            // Actualización automática cada 10 segundos para mantener datos frescos
-            setInterval(function () {
-                updateAll();
-            }, 10000);
 
-            // Carga inicial de datos al cargar la página
-            updateAll();
+            
+            // Procesa manualmente la siguiente tarea en cola
+            $(document).on('click', '#processNext', function() {
+                var button = $(this);
+                var originalText = button.html();
+                
+                button.prop('disabled', true).html('<svg class="animate-spin w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Procesando...');
+                
+                $.ajax({
+                    url: '@Url.Action("ProcessNext", "Queue")',
+                    type: 'POST',
+                    data: { __RequestVerificationToken: token },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            var successMessage = $('<div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">' +
+                                '<strong>Éxito:</strong> ' + response.message + '</div>');
+                            $('body').append(successMessage);
+                            
+                            setTimeout(function() {
+                                successMessage.fadeOut(function() { $(this).remove(); });
+                            }, 3000);
+                            
+                            // Mostrar mensaje de recarga
+                            var reloadMessage = $('<div class="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded z-50">' +
+                                '<strong>Actualizando:</strong> Recargando página para mostrar cambios...</div>');
+                            $('body').append(reloadMessage);
+                            
+                            // Recargar página después de 1 segundo
+                            setTimeout(function() {
+                                console.log('Procesamiento manual completado, recargando página...');
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error al procesar la siguiente tarea: ' + error);
+                    },
+                    complete: function() {
+                        button.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
         });
     </script>
-} 
+}

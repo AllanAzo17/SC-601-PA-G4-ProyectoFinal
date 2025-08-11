@@ -1,180 +1,143 @@
-@model IEnumerable<ProyectoFinal.Data.TaskLog>
+﻿@model IEnumerable<ProyectoFinal.Data.TaskLog>
 @{
     ViewBag.Title = "Historial de Tarea";
     var task = ViewBag.Task as ProyectoFinal.Data.Task;
 }
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2>Historial de Tarea: @task.Title</h2>
-            <a href="@Url.Action("Index", "Queue")" class="btn btn-outline-secondary">Volver a Cola</a>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Historial de Tarea: @task.Title</h1>
+                <p class="mt-2 text-sm text-gray-600">Registro detallado de todas las ejecuciones de esta tarea</p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="@Url.Action("Index", "Queue")" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver a Cola
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Información de la Tarea -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Informacion de la Tarea</h5>
+    <!-- Task Information -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Información de la Tarea</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Título</div>
+                        <div class="mt-1 text-sm text-gray-900">@task.Title</div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Descripción</div>
+                        <div class="mt-1 text-sm text-gray-900">@task.Description</div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Prioridad</div>
+                        <div class="mt-1">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(task.Priority == "Alta" ? "bg-red-100 text-red-800" : task.Priority == "Media" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800")">
+                                @task.Priority
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Titulo:</strong> @task.Title</p>
-                            <p><strong>Descripcion:</strong> @task.Description</p>
-                            <p><strong>Prioridad:</strong> 
-                                <span class="badge @(task.Priority == "Alta" ? "bg-danger" : task.Priority == "Media" ? "bg-warning" : "bg-secondary")">
-                                    @task.Priority
-                                </span>
-                            </p>
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Estado</div>
+                        <div class="mt-1">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(task.Status == "Pendiente" ? "bg-yellow-100 text-yellow-800" : task.Status == "En Proceso" ? "bg-blue-100 text-blue-800" : task.Status == "Finalizada" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                @task.Status
+                            </span>
                         </div>
-                        <div class="col-md-6">
-                            <p><strong>Estado:</strong> 
-                                <span class="badge @(task.Status == "Pendiente" ? "bg-warning" : task.Status == "EnProceso" ? "bg-info" : task.Status == "Finalizada" ? "bg-success" : "bg-danger")">
-                                    @task.Status
-                                </span>
-                            </p>
-                            <p><strong>Fecha Programada:</strong> @task.ScheduledDate.ToString("dd/MM/yyyy HH:mm")</p>
-                            <p><strong>Fecha Creacion:</strong> @(task.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
-                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Fecha Programada</div>
+                        <div class="mt-1 text-sm text-gray-900">@task.ScheduledDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Fecha de Creación</div>
+                        <div class="mt-1 text-sm text-gray-900">@(task.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Historial de Logs -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Historial de Ejecucion</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Fin</th>
-                                        <th>Estado</th>
-                                        <th>Duracion</th>
-                                        <th>Mensaje de Error</th>
-                                        <th>Detalles</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var log in Model.OrderByDescending(l => l.ExecutionStart))
-                                    {
-                                        <tr>
-                                            <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                            <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                            <td>
-                                                <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
-                                                    @(log.Success == true ? "Exitoso" : "Fallido")
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
-                                                {
-                                                    var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
-                                                    @duration.ToString(@"mm\:ss")
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(log.ErrorMessage))
-                                                {
-                                                    <span class="text-danger">@log.ErrorMessage</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(log.LogDetails))
-                                                {
-                                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#logModal-@log.LogId">
-                                                        Ver Detalles
-                                                    </button>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Modales para detalles de logs -->
-                        foreach (var log in Model)
-                        {
-                            if (!string.IsNullOrEmpty(log.LogDetails))
+    <!-- Execution History -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Historial de Ejecución</h3>
+        </div>
+        <div class="p-6">
+            @if (Model.Any())
+            {
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duración</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje de Error</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach (var log in Model.OrderByDescending(l => l.ExecutionStart))
                             {
-                                <div class="modal fade" id="logModal-@log.LogId" tabindex="-1" aria-labelledby="logModalLabel-@log.LogId" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="logModalLabel-@log.LogId">Detalles de Ejecucion</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(log.Success == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                            @(log.Success == true ? "Exitoso" : "Fallido")
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
+                                        {
+                                            var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
+                                            <span class="font-mono">@duration.ToString(@"mm\:ss")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-gray-400">-</span>
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                                        @if (!string.IsNullOrEmpty(log.ErrorMessage))
+                                        {
+                                            <div class="truncate" title="@log.ErrorMessage">
+                                                <span class="text-red-600">@log.ErrorMessage</span>
                                             </div>
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <p><strong>Fecha Inicio:</strong> @(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</p>
-                                                        <p><strong>Fecha Fin:</strong> @(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</p>
-                                                        <p><strong>Estado:</strong> 
-                                                            <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
-                                                                @(log.Success == true ? "Exitoso" : "Fallido")
-                                                            </span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
-                                                        {
-                                                            var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
-                                                            <p><strong>Duracion:</strong> @duration.ToString(@"mm\:ss")</p>
-                                                        }
-                                                        @if (!string.IsNullOrEmpty(log.ErrorMessage))
-                                                        {
-                                                            <p><strong>Error:</strong> <span class="text-danger">@log.ErrorMessage</span></p>
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <h6>Detalles de la Ejecucion:</h6>
-                                                        <pre class="bg-light p-3 rounded">@log.LogDetails</pre>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-gray-400">-</span>
+                                        }
+                                    </td>
+                                </tr>
                             }
-                        }
-                    }
-                    else
-                    {
-                        <p class="text-muted">No hay historial de ejecución para esta tarea.</p>
-                    }
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">No hay historial de ejecución disponible para esta tarea</p>
+                </div>
+            }
         </div>
     </div>
-</div> 
+</div>

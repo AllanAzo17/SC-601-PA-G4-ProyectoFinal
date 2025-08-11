@@ -24,7 +24,11 @@ namespace ProyectoFinal.MVC.Controllers
         public ActionResult Index()
         {
             var task = taskBusiness.Get(id: null);
-            return View(task.ToList());
+            // Ordenar tareas: primero las Pendientes, luego por fecha de creación (más recientes primero)
+            var orderedTasks = task.OrderByDescending(t => t.Status == "Pendiente")
+                                   .ThenByDescending(t => t.CreatedAt)
+                                   .ToList();
+            return View(orderedTasks);
         }
 
         // GET: Tasks/Details/5
@@ -45,27 +49,25 @@ namespace ProyectoFinal.MVC.Controllers
         // GET: Tasks/Create
         public ActionResult Create()
         {
-            ViewBag.CreatedBy = new SelectList(new List<string> { "UserId", "Username" });
             return View();
         }
 
         // POST: Tasks/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "TaskId,Title,Description,Priority,ScheduledDate,Status,CreatedAt,CreatedBy")] Task task)
         {
             if (ModelState.IsValid)
             {
-                taskBusiness.Save(0, task);
+                task.Status = "Pendiente";
+                task.CreatedBy = 1;
+                task.CreatedAt = DateTime.Now;
                 
-                taskBusiness.EnqueueTask(task.TaskId);
+                taskBusiness.Save(0, task);
                 
                 return RedirectToAction("Index");
             }
 
-            ViewBag.CreatedBy = new SelectList(new List<string> { "UserId", "Username" }, task.CreatedBy);
             return View(task);
         }
 
@@ -81,13 +83,20 @@ namespace ProyectoFinal.MVC.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.CreatedBy = new SelectList(new List<string> { "UserId", "Username" }, task.CreatedBy);
+
+            if (task.User != null)
+            {
+                ViewBag.CreatedByUsername = task.User.Username;
+            }
+            else
+            {
+                ViewBag.CreatedByUsername = "Usuario no disponible";
+            }
+
             return View(task);
         }
 
         // POST: Tasks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "TaskId,Title,Description,Priority,ScheduledDate,Status,CreatedAt,CreatedBy")] Task task)
@@ -98,11 +107,12 @@ namespace ProyectoFinal.MVC.Controllers
                 if (current == null) return HttpNotFound();
 
                 task.CreatedAt = current.CreatedAt;
+                task.CreatedBy = current.CreatedBy;
+                task.Status = current.Status;
 
                 taskBusiness.Save(task.TaskId, task);
                 return RedirectToAction("Index");
             }
-            ViewBag.CreatedBy = new SelectList(new List<string> { "UserId", "Username" }, task.CreatedBy);
             return View(task);
         }
 
@@ -130,7 +140,7 @@ namespace ProyectoFinal.MVC.Controllers
             if (task == null)
                 return HttpNotFound();
 
-            if (task.Status == "EnProceso")
+                            if (task.Status == "En Proceso")
             {
                 TempData["ErrorMessage"] = "No se puede eliminar una tarea que está en proceso.";
                 return RedirectToAction("Index");
@@ -162,14 +172,36 @@ namespace ProyectoFinal.MVC.Controllers
         {
             try
             {
-                taskBusiness.RetryFailedTask(id);
-                return Json(new { success = true, message = "Tarea agregada a la cola para reintento" });
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Iniciando reintento para tarea {id}");
+                
+                var task = taskBusiness.Get(id).FirstOrDefault();
+                if (task == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Tarea {id} no encontrada");
+                    return Json(new { success = false, message = "Tarea no encontrada" }, JsonRequestBehavior.AllowGet);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Tarea encontrada - ID: {task.TaskId}, Estado actual: {task.Status}");
+
+                // Cambiar estado a "Pendiente" para permitir reintento
+                task.Status = "Pendiente";
+                taskBusiness.Save(task.TaskId, task);
+
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Estado cambiado a 'Pendiente'");
+
+                // Agregar a la cola para procesamiento
+                taskBusiness.EnqueueTask(id);
+
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Tarea agregada a la cola exitosamente");
+
+                return Json(new { success = true, message = "Tarea agregada a la cola para reintento" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Error - {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"TasksController.Retry: StackTrace - {ex.StackTrace}");
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
     }
 }

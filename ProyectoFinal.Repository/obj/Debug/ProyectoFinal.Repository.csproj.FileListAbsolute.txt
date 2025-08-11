@@ -1,5 +1,3 @@
-C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.csproj.AssemblyReference.cache
-C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.csproj.CoreCompileInputs.cache
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\ProyectoFinal.Repository.dll.config
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\ProyectoFinal.Repository.dll
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\ProyectoFinal.Repository.pdb
@@ -10,6 +8,8 @@ C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repositor
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\ProyectoFinal.Data.dll.config
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\EntityFramework.xml
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.csproj.AssemblyReference.cache
+C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.csproj.CoreCompileInputs.cache
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\Proyecto.39799933.Up2Date
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.dll
 C:\Users\Horacio\Source\Repos\SC-601-PA-G4-ProyectoFinal\ProyectoFinal.Repository\obj\Debug\ProyectoFinal.Repository.pdb

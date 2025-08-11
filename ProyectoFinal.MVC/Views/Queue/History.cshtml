@@ -1,75 +1,186 @@
-@model IEnumerable<ProyectoFinal.Data.TaskLog>
+﻿@model IEnumerable<ProyectoFinal.Data.TaskLog>
 @{
     ViewBag.Title = "Historial de Ejecución";
 }
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2>Historial de Ejecucion</h2>
-            <a href="@Url.Action("Index", "Queue")" class="btn btn-outline-secondary">Volver a Cola</a>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Historial de Ejecución</h1>
+                <p class="mt-2 text-sm text-gray-600">Registro completo de todas las ejecuciones de tareas</p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="@Url.Action("Index", "Queue")" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver a Cola
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5>Historial Completo de Ejecucion</h5>
+    <!-- Statistics Cards -->
+    @if (Model.Any())
+    {
+        var totalExecutions = Model.Count();
+        var successfulExecutions = Model.Count(l => l.Success == true);
+        var failedExecutions = Model.Count(l => l.Success == false);
+        var successRate = totalExecutions > 0 ? Math.Round((double)successfulExecutions / totalExecutions * 100, 1) : 0;
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Total Executions -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Ejecuciones</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">@totalExecutions</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Successful Executions -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Exitosas</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">@successfulExecutions</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failed Executions -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Fallidas</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">@failedExecutions</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Rate -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Tasa de Éxito</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">@successRate%</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
+    }
+
+    <!-- History Table -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Historial Completo de Ejecución</h3>
+        </div>
+        <div class="p-6">
             @if (Model.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
+                <div class="overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th>Tarea</th>
-                                <th>Fecha Inicio</th>
-                                <th>Fecha Fin</th>
-                                <th>Estado</th>
-                                <th>Duracion</th>
-                                <th>Mensaje de Error</th>
-                                <th>Acciones</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarea</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duración</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje de Error</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                             @foreach (var log in Model.OrderByDescending(l => l.ExecutionStart))
                             {
-                                <tr>
-                                    <td>@log.Task.Title</td>
-                                    <td>@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                    <td>@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
-                                    <td>
-                                        <span class="badge @(log.Success == true ? "bg-success" : "bg-danger")">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@log.Task.Title</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@(log.ExecutionStart?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@(log.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(log.Success == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
                                             @(log.Success == true ? "Exitoso" : "Fallido")
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if (log.ExecutionStart.HasValue && log.ExecutionEnd.HasValue)
                                         {
                                             var duration = log.ExecutionEnd.Value - log.ExecutionStart.Value;
-                                            @duration.ToString(@"mm\:ss")
+                                            <span class="font-mono">@duration.ToString(@"mm\:ss")</span>
                                         }
                                         else
                                         {
-                                            <span class="text-muted">-</span>
+                                            <span class="text-gray-400">-</span>
                                         }
                                     </td>
-                                    <td>
+                                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs">
                                         @if (!string.IsNullOrEmpty(log.ErrorMessage))
                                         {
-                                            <span class="text-danger">@log.ErrorMessage</span>
+                                            <div class="truncate" title="@log.ErrorMessage">
+                                                <span class="text-red-600">@log.ErrorMessage</span>
+                                            </div>
                                         }
                                         else
                                         {
-                                            <span class="text-muted">-</span>
+                                            <span class="text-gray-400">-</span>
                                         }
                                     </td>
-                                    <td>
-                                        <a href="@Url.Action("TaskHistory", "Queue", new { id = log.TaskId })" class="btn btn-sm btn-outline-info">Ver Logs</a>
-                                        @if (log.Success == false)
-                                        {
-                                            <button class="btn btn-sm btn-outline-warning retry-task" data-task-id="@log.TaskId">Reintentar</button>
-                                        }
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="@Url.Action("TaskHistory", "Queue", new { id = log.TaskId })" class="text-blue-600 hover:text-blue-900 transition-colors">Ver Logs</a>
+                                            @if (log.Success == false)
+                                            {
+                                                <button class="text-yellow-600 hover:text-yellow-900 transition-colors retry-task" data-task-id="@log.TaskId">Reintentar</button>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -79,7 +190,12 @@
             }
             else
             {
-                <p class="text-muted">No hay historial de ejecución disponible.</p>
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">No hay historial de ejecución disponible</p>
+                </div>
             }
         </div>
     </div>
@@ -92,20 +208,30 @@
             $('.retry-task').click(function () {
                 var taskId = $(this).data('task-id');
                 var button = $(this);
-                
-                $.post('@Url.Action("Retry", "Queue")', { id: taskId })
-                    .done(function (response) {
-                        if (response.success) {
+
+                $.ajax({
+                    url: '@Url.Action("Retry", "Queue")',
+                    type: 'POST',
+                    data: { id: taskId },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('Respuesta recibida:', response);
+                        if (response && response.success === true) {
                             alert('Tarea agregada a la cola para reintento');
                             location.reload();
                         } else {
-                            alert('Error: ' + response.message);
+                            var errorMessage = (response && response.message) ? response.message : 'Error desconocido';
+                            alert('Error: ' + errorMessage);
                         }
-                    })
-                    .fail(function () {
-                        alert('Error al procesar la solicitud');
-                    });
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Error AJAX:', xhr.responseText);
+                        console.log('Status:', status);
+                        console.log('Error:', error);
+                        alert('Error al procesar la solicitud: ' + error);
+                    }
+                });
             });
         });
     </script>
-} 
+}

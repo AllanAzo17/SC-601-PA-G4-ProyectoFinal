@@ -45,7 +45,7 @@ namespace ProyectoFinal.MVC.Controllers
             var tasksByStatus = new
             {
                 Pendiente = taskBusiness.GetTasksByStatus("Pendiente").Count(),
-                EnProceso = taskBusiness.GetTasksByStatus("EnProceso").Count(),
+                EnProceso = taskBusiness.GetTasksByStatus("En Proceso").Count(),
                 Finalizada = taskBusiness.GetTasksByStatus("Finalizada").Count(),
                 Fallida = taskBusiness.GetTasksByStatus("Fallida").Count()
             };

@@ -41,15 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusinessManager.cs" />
-    <Compile Include="Interfaces\INotificationService.cs" />
-    <Compile Include="Interfaces\IQueueService.cs" />
-    <Compile Include="Interfaces\ITaskService.cs" />
     <Compile Include="Models\TaskDashboardSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\NotificationService.cs" />
-    <Compile Include="Services\QueueService.cs" />
-    <Compile Include="Services\TaskExecutionService.cs" />
     <Compile Include="TaskBusiness.cs" />
   </ItemGroup>
   <ItemGroup>
