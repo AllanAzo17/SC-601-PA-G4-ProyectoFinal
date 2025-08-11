@@ -5,12 +5,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5371FC66-AA4B-4FD0-BBD7-D862D5BEB2F0}</ProjectGuid>
+    <ProjectGuid>{917FE1AA-9BA7-4929-8372-40185E243C56}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AvanceFinal.Repository</RootNamespace>
-    <AssemblyName>AvanceFinal.Repository</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RootNamespace>ProyectoFinal.Repository</RootNamespace>
+    <AssemblyName>ProyectoFinal.Repository</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -53,10 +53,13 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryBase.cs" />
+    <Compile Include="RepositoryTask.cs" />
+    <Compile Include="RepositoryTaskLog.cs" />
+    <Compile Include="RepositoryTaskQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProyectoFinal.Data\ProyectoFinal.Data.csproj">
-      <Project>{3e2dfa65-ce41-47d0-ac40-d49bb4b9a825}</Project>
+      <Project>{b0c1ab58-2675-49e4-8eee-6376d6938352}</Project>
       <Name>ProyectoFinal.Data</Name>
     </ProjectReference>
   </ItemGroup>

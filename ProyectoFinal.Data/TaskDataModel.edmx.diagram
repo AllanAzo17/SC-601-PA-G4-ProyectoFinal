@@ -4,10 +4,17 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="f24a026834814f5e94a955520ef3fabf" Name="Diagram1">
-        <EntityTypeShape EntityType="ProyectoFinalDBModel.Queue" Width="1.5" PointX="0.75" PointY="1.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="ProyectoFinalDBModel.Task" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
-        <AssociationConnector Association="ProyectoFinalDBModel.FK__Tasks__QueueID__4BAC3F29" ManuallyRouted="false" />
+      <Diagram DiagramId="416f08db92b14d5b8be1d0656d5d91bd" Name="Diagram1">
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.Notification" Width="1.5" PointX="5.25" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.TaskLog" Width="1.5" PointX="5.25" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.TaskQueue" Width="1.5" PointX="5.25" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.Task" Width="1.5" PointX="3" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.User" Width="1.5" PointX="0.75" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="G4ProyectoFinalDBModel.TaskSummary" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="G4ProyectoFinalDBModel.FK_Notifications_Tasks" ManuallyRouted="false" />
+        <AssociationConnector Association="G4ProyectoFinalDBModel.FK_TaskLogs_Tasks" ManuallyRouted="false" />
+        <AssociationConnector Association="G4ProyectoFinalDBModel.FK_TaskQueue_Tasks" ManuallyRouted="false" />
+        <AssociationConnector Association="G4ProyectoFinalDBModel.FK_Tasks_Users" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

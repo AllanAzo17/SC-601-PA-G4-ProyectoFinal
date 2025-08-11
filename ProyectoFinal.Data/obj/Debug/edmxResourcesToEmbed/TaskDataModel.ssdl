@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="G4ProyectoFinalDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Notifications">
+    <Key>
+      <PropertyRef Name="NotificationId" />
+    </Key>
+    <Property Name="NotificationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TaskId" Type="int" Nullable="false" />
+    <Property Name="SentAt" Type="datetime" />
+    <Property Name="MessageType" Type="nvarchar" MaxLength="50" />
+    <Property Name="MessageContent" Type="nvarchar(max)" />
+    <Property Name="Recipient" Type="nvarchar" MaxLength="100" />
+  </EntityType>
+  <EntityType Name="TaskLogs">
+    <Key>
+      <PropertyRef Name="LogId" />
+    </Key>
+    <Property Name="LogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TaskId" Type="int" Nullable="false" />
+    <Property Name="ExecutionStart" Type="datetime" />
+    <Property Name="ExecutionEnd" Type="datetime" />
+    <Property Name="Success" Type="bit" />
+    <Property Name="ErrorMessage" Type="nvarchar(max)" />
+    <Property Name="LogDetails" Type="nvarchar(max)" />
+  </EntityType>
+  <EntityType Name="TaskQueue">
+    <Key>
+      <PropertyRef Name="QueueId" />
+    </Key>
+    <Property Name="QueueId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TaskId" Type="int" Nullable="false" />
+    <Property Name="EnqueuedAt" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Tasks">
+    <Key>
+      <PropertyRef Name="TaskId" />
+    </Key>
+    <Property Name="TaskId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Title" Type="nvarchar" MaxLength="100" Nullable="false" />
+    <Property Name="Description" Type="nvarchar(max)" />
+    <Property Name="Priority" Type="nvarchar" MaxLength="10" Nullable="false" />
+    <Property Name="ScheduledDate" Type="datetime" Nullable="false" />
+    <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+    <Property Name="CreatedAt" Type="datetime" />
+    <Property Name="CreatedBy" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Username" Type="nvarchar" MaxLength="50" Nullable="false" />
+    <Property Name="Email" Type="nvarchar" MaxLength="100" Nullable="false" />
+    <Property Name="PasswordHash" Type="nvarchar" MaxLength="255" Nullable="false" />
+    <Property Name="CreatedAt" Type="datetime" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'G4ProyectoFinalDB.dbo.TaskSummary' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="TaskSummary">
+    <Key>
+      <PropertyRef Name="Status" />
+    </Key>
+    <Property Name="Status" Type="nvarchar" MaxLength="20" Nullable="false" />
+    <Property Name="Total" Type="int" />
+  </EntityType>
+  <Association Name="FK_Notifications_Tasks">
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
+    <End Role="Notifications" Type="Self.Notifications" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="Notifications">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TaskLogs_Tasks">
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
+    <End Role="TaskLogs" Type="Self.TaskLogs" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="TaskLogs">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TaskQueue_Tasks">
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="1" />
+    <End Role="TaskQueue" Type="Self.TaskQueue" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="TaskQueue">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Tasks_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="1" />
+    <End Role="Tasks" Type="Self.Tasks" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Tasks">
+        <PropertyRef Name="CreatedBy" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="G4ProyectoFinalDBModelStoreContainer">
+    <EntitySet Name="Notifications" EntityType="Self.Notifications" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TaskLogs" EntityType="Self.TaskLogs" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TaskQueue" EntityType="Self.TaskQueue" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Tasks" EntityType="Self.Tasks" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TaskSummary" EntityType="Self.TaskSummary" store:Type="Views" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+    [TaskSummary].[Status] AS [Status], 
+    [TaskSummary].[Total] AS [Total]
+    FROM [dbo].[TaskSummary] AS [TaskSummary]</DefiningQuery>
+    </EntitySet>
+    <AssociationSet Name="FK_Notifications_Tasks" Association="Self.FK_Notifications_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="Notifications" EntitySet="Notifications" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TaskLogs_Tasks" Association="Self.FK_TaskLogs_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="TaskLogs" EntitySet="TaskLogs" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TaskQueue_Tasks" Association="Self.FK_TaskQueue_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="TaskQueue" EntitySet="TaskQueue" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Tasks_Users" Association="Self.FK_Tasks_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Tasks" EntitySet="Tasks" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

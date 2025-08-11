@@ -1,0 +1,100 @@
+﻿@model ProyectoFinal.Data.Task
+
+@{
+    ViewBag.Title = "Editar Tarea";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4">
+        <h1 class="text-3xl font-bold text-gray-900">Editar Tarea</h1>
+        <p class="mt-2 text-sm text-gray-600">Modifica la información de la tarea</p>
+    </div>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Información de la Tarea</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                @Html.ValidationSummary(true, "", new { @class = "bg-red-50 border border-red-200 rounded-md p-4" })
+                @Html.HiddenFor(model => model.TaskId)
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                        <label for="Title" class="block text-sm font-medium text-gray-700 mb-2">Título</label>
+                        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" } })
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "mt-1 text-sm text-red-600" })
+                    </div>
+
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label for="Description" class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                        @Html.TextAreaFor(model => model.Description, new { @class = "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm", rows = "4" })
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "mt-1 text-sm text-red-600" })
+                    </div>
+
+                    <!-- Priority -->
+                    <div>
+                        <label for="Priority" class="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
+                        <select id="Priority" name="Priority" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            <option value="">Seleccionar prioridad</option>
+                            <option value="Alta" @(Model.Priority == "Alta" ? "selected" : "")>Alta</option>
+                            <option value="Media" @(Model.Priority == "Media" ? "selected" : "")>Media</option>
+                            <option value="Baja" @(Model.Priority == "Baja" ? "selected" : "")>Baja</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.Priority, "", new { @class = "mt-1 text-sm text-red-600" })
+                    </div>
+
+                     <!-- Scheduled Date -->
+                     <div>
+                         <label for="ScheduledDate" class="block text-sm font-medium text-gray-700 mb-2">Fecha Programada</label>
+                         <input type="datetime-local" 
+                                name="ScheduledDate" 
+                                value="@Model.ScheduledDate.ToString("yyyy-MM-ddTHH:mm")" 
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" />
+                         @Html.ValidationMessageFor(model => model.ScheduledDate, "", new { @class = "mt-1 text-sm text-red-600" })
+                     </div>
+
+                    <!-- Status (Read-only) -->
+                    <div>
+                        <label for="Status" class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                        <input type="text" value="@Model.Status" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm" />
+                        @Html.HiddenFor(model => model.Status)
+                    </div>
+
+                    <!-- Created By (Read-only) -->
+                    <div>
+                        <label for="CreatedBy" class="block text-sm font-medium text-gray-700 mb-2">Creado Por</label>
+                        <input type="text" value="@ViewBag.CreatedByUsername" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm" />
+                        @Html.HiddenFor(model => model.CreatedBy)
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="@Url.Action("Index", "Tasks")" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Cancelar
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

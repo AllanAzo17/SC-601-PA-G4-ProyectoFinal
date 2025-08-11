@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="G4ProyectoFinalDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Notification">
+    <Key>
+      <PropertyRef Name="NotificationId" />
+    </Key>
+    <Property Name="NotificationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TaskId" Type="Int32" Nullable="false" />
+    <Property Name="SentAt" Type="DateTime" Precision="3" />
+    <Property Name="MessageType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="MessageContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Recipient" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Task" Relationship="Self.FK_Notifications_Tasks" FromRole="Notifications" ToRole="Tasks" />
+  </EntityType>
+  <EntityType Name="TaskLog">
+    <Key>
+      <PropertyRef Name="LogId" />
+    </Key>
+    <Property Name="LogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TaskId" Type="Int32" Nullable="false" />
+    <Property Name="ExecutionStart" Type="DateTime" Precision="3" />
+    <Property Name="ExecutionEnd" Type="DateTime" Precision="3" />
+    <Property Name="Success" Type="Boolean" />
+    <Property Name="ErrorMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="LogDetails" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="Task" Relationship="Self.FK_TaskLogs_Tasks" FromRole="TaskLogs" ToRole="Tasks" />
+  </EntityType>
+  <EntityType Name="TaskQueue">
+    <Key>
+      <PropertyRef Name="QueueId" />
+    </Key>
+    <Property Name="QueueId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TaskId" Type="Int32" Nullable="false" />
+    <Property Name="EnqueuedAt" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Task" Relationship="Self.FK_TaskQueue_Tasks" FromRole="TaskQueue" ToRole="Tasks" />
+  </EntityType>
+  <EntityType Name="Task">
+    <Key>
+      <PropertyRef Name="TaskId" />
+    </Key>
+    <Property Name="TaskId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Title" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="Priority" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="ScheduledDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="CreatedAt" Type="DateTime" Precision="3" />
+    <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Notifications" Relationship="Self.FK_Notifications_Tasks" FromRole="Tasks" ToRole="Notifications" />
+    <NavigationProperty Name="TaskLogs" Relationship="Self.FK_TaskLogs_Tasks" FromRole="Tasks" ToRole="TaskLogs" />
+    <NavigationProperty Name="TaskQueues" Relationship="Self.FK_TaskQueue_Tasks" FromRole="Tasks" ToRole="TaskQueue" />
+    <NavigationProperty Name="User" Relationship="Self.FK_Tasks_Users" FromRole="Tasks" ToRole="Users" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="CreatedAt" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Tasks" Relationship="Self.FK_Tasks_Users" FromRole="Users" ToRole="Tasks" />
+  </EntityType>
+  <EntityType Name="TaskSummary">
+    <Key>
+      <PropertyRef Name="Status" />
+    </Key>
+    <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Total" Type="Int32" />
+  </EntityType>
+  <Association Name="FK_Notifications_Tasks">
+    <End Role="Tasks" Type="Self.Task" Multiplicity="1" />
+    <End Role="Notifications" Type="Self.Notification" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="Notifications">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TaskLogs_Tasks">
+    <End Role="Tasks" Type="Self.Task" Multiplicity="1" />
+    <End Role="TaskLogs" Type="Self.TaskLog" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="TaskLogs">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TaskQueue_Tasks">
+    <End Role="Tasks" Type="Self.Task" Multiplicity="1" />
+    <End Role="TaskQueue" Type="Self.TaskQueue" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tasks">
+        <PropertyRef Name="TaskId" />
+      </Principal>
+      <Dependent Role="TaskQueue">
+        <PropertyRef Name="TaskId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Tasks_Users">
+    <End Role="Users" Type="Self.User" Multiplicity="1" />
+    <End Role="Tasks" Type="Self.Task" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Tasks">
+        <PropertyRef Name="CreatedBy" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="G4ProyectoFinalDBEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Notifications" EntityType="Self.Notification" />
+    <EntitySet Name="TaskLogs" EntityType="Self.TaskLog" />
+    <EntitySet Name="TaskQueues" EntityType="Self.TaskQueue" />
+    <EntitySet Name="Tasks" EntityType="Self.Task" />
+    <EntitySet Name="Users" EntityType="Self.User" />
+    <EntitySet Name="TaskSummaries" EntityType="Self.TaskSummary" />
+    <AssociationSet Name="FK_Notifications_Tasks" Association="Self.FK_Notifications_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="Notifications" EntitySet="Notifications" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TaskLogs_Tasks" Association="Self.FK_TaskLogs_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="TaskLogs" EntitySet="TaskLogs" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TaskQueue_Tasks" Association="Self.FK_TaskQueue_Tasks">
+      <End Role="Tasks" EntitySet="Tasks" />
+      <End Role="TaskQueue" EntitySet="TaskQueues" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Tasks_Users" Association="Self.FK_Tasks_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Tasks" EntitySet="Tasks" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

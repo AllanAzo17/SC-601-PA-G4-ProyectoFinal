@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4D84B6A4-BA1D-4CB2-AEA8-D43CBA8CB1B5}</ProjectGuid>
+    <ProjectGuid>{3CE7A056-5010-45A4-BB02-8C3735FC96B1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AvanceFinal.Business</RootNamespace>
-    <AssemblyName>AvanceFinal.Business</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RootNamespace>ProyectoFinal.Business</RootNamespace>
+    <AssemblyName>ProyectoFinal.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -41,20 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\TaskDashboardSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskBusiness.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProyectoFinal.Data\ProyectoFinal.Data.csproj">
-      <Project>{3e2dfa65-ce41-47d0-ac40-d49bb4b9a825}</Project>
+      <Project>{b0c1ab58-2675-49e4-8eee-6376d6938352}</Project>
       <Name>ProyectoFinal.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ProyectoFinal.Models\ProyectoFinal.Models.csproj">
-      <Project>{7f17ce43-7808-4369-855c-0f5cf370e1bf}</Project>
-      <Name>ProyectoFinal.Models</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ProyectoFinal.Repository\ProyectoFinal.Repository.csproj">
-      <Project>{5371fc66-aa4b-4fd0-bbd7-d862d5beb2f0}</Project>
+      <Project>{917fe1aa-9ba7-4929-8372-40185e243c56}</Project>
       <Name>ProyectoFinal.Repository</Name>
     </ProjectReference>
   </ItemGroup>

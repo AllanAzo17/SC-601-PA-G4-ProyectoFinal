@@ -1,0 +1,187 @@
+﻿@model ProyectoFinal.Data.Task
+
+@{
+    ViewBag.Title = "Detalles de Tarea";
+}
+
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4 mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Detalles de Tarea</h1>
+        <p class="mt-2 text-sm text-gray-600">Información completa de la tarea seleccionada</p>
+    </div>
+
+    <!-- Task Details Card -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <!-- Task Header -->
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <h2 class="text-xl font-semibold text-gray-900">@Model.Title</h2>
+                    <p class="text-sm text-gray-600 mt-1">ID: @Model.TaskId</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    @{
+                        string statusColor;
+                        switch (Model.Status)
+                        {
+                            case "Pendiente":
+                                statusColor = "bg-yellow-100 text-yellow-800";
+                                break;
+                            case "En Proceso":
+                                statusColor = "bg-blue-100 text-blue-800";
+                                break;
+                            case "Finalizada":
+                                statusColor = "bg-green-100 text-green-800";
+                                break;
+                            case "Cancelada":
+                                statusColor = "bg-red-100 text-red-800";
+                                break;
+                            default:
+                                statusColor = "bg-gray-100 text-gray-800";
+                                break;
+                        }
+
+                        string priorityColor;
+                        switch (Model.Priority)
+                        {
+                            case "Alta":
+                                priorityColor = "bg-red-100 text-red-800";
+                                break;
+                            case "Media":
+                                priorityColor = "bg-yellow-100 text-yellow-800";
+                                break;
+                            case "Baja":
+                                priorityColor = "bg-green-100 text-green-800";
+                                break;
+                            default:
+                                priorityColor = "bg-gray-100 text-gray-800";
+                                break;
+                        }
+                    }
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium @statusColor">
+                        @Model.Status
+                    </span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium @priorityColor">
+                        @Model.Priority
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Content -->
+        <div class="px-6 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Description -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Descripción</h3>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                @(string.IsNullOrEmpty(Model.Description) ? "Sin descripción disponible" : Model.Description)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Scheduled Date -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Fecha Programada</h3>
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-gray-700 font-medium">
+                                @Model.ScheduledDate.ToString("dddd, dd 'de' MMMM 'de' yyyy 'a las' HH:mm")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Created At -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Fecha de Creación</h3>
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-700 font-medium">
+                                @(Model.CreatedAt?.ToString("dddd, dd 'de' MMMM 'de' yyyy 'a las' HH:mm") ?? "No disponible")
+                            </span>
+                        </div>
+                    </div>
+
+                                         <!-- Created By -->
+                     <div>
+                         <h3 class="text-lg font-medium text-gray-900 mb-3">Creado Por</h3>
+                         <div class="flex items-center space-x-2">
+                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                             </svg>
+                             <span class="text-gray-700 font-medium">
+                                 @(Model.User?.Username ?? "Usuario no disponible")
+                             </span>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="@Url.Action("Index")"
+           class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Volver al Listado
+        </a>
+        
+        <a href="@Url.Action("Edit", new { id = Model.TaskId })" 
+           class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            Editar Tarea
+        </a>
+
+        @if (Model.Status == "Pendiente")
+        {
+            <button onclick="enqueueTask(@Model.TaskId)" 
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Encolar Tarea
+            </button>
+        }
+    </div>
+</div>
+
+<script>
+function enqueueTask(taskId) {
+    if (confirm('¿Estás seguro de que deseas encolar esta tarea?')) {
+        $.ajax({
+            url: '/Tasks/Enqueue/' + taskId,
+            type: 'POST',
+            data: {
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Tarea agregada a la cola');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Error al encolar la tarea');
+            }
+        });
+    }
+}
+</script>

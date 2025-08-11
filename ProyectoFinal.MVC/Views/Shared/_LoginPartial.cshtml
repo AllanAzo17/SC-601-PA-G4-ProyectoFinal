@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-700">
+            Hola @User.Identity.GetUserName()!
+        </span>
+        <a href="@Url.Action("Index", "Manage")" class="text-sm text-gray-700 hover:text-primary-600 transition-colors">
+            Perfil
+        </a>
+        <button type="submit" class="text-sm text-gray-700 hover:text-red-600 transition-colors">
+            Cerrar sesión
+        </button>
+    </div>
+    }
+}
+else
+{
+    <div class="flex items-center space-x-4">
+        <a href="@Url.Action("Register", "Account")" class="text-sm text-gray-700 hover:text-primary-600 transition-colors">
+            Registrarse
+        </a>
+        <a href="@Url.Action("Login", "Account")" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+            Iniciar sesión
+        </a>
+    </div>
+}

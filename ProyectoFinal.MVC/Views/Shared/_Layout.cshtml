@@ -1,41 +1,161 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Task Manager</title>
-    @Styles.Render("~/Content/css")
+    <title>@ViewBag.Title - Sistema de Cola de Tareas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
     @Scripts.Render("~/bundles/modernizr")
 </head>
-<body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Task Manager", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Task", "Index", "Task", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Queue", "Index", "Queue", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+<body class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase) ? "" : "bg-gray-50") min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <a href="@Url.Action("Index", "Dashboard")" class="text-xl font-bold text-gray-900 hover:text-primary-600 transition-colors">
+                            Sistema de Cola de Tareas
+                        </a>
+                    </div>
+                    @if (!ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <div class="hidden md:ml-6 md:flex md:space-x-8">
+                            <a href="@Url.Action("Index", "Dashboard")" class="text-gray-900 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                Dashboard
+                            </a>
+                            <a href="@Url.Action("Index", "Tasks")" class="text-gray-900 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                Tareas
+                            </a>
+                            <a href="@Url.Action("Index", "Queue")" class="text-gray-900 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                Cola
+                            </a>
+                            <a href="@Url.Action("History", "Queue")" class="text-gray-900 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                Historial
+                            </a>
+                        </div>
+                    }
+                </div>
+                
+                @if (!ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase))
+                {
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden flex items-center">
+                        <button type="button" class="text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 p-2 rounded-md" id="mobile-menu-button">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- User menu -->
+                    <div class="hidden md:flex md:items-center">
+                        @Html.Partial("_LoginPartial")
+                    </div>
+                }
             </div>
         </div>
+        
+        @if (!ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase))
+        {
+            <!-- Mobile menu -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+                    <a href="@Url.Action("Index", "Dashboard")" class="text-gray-900 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        Dashboard
+                    </a>
+                    <a href="@Url.Action("Index", "Tasks")" class="text-gray-900 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        Tareas
+                    </a>
+                    <a href="@Url.Action("Index", "Queue")" class="text-gray-900 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        Cola
+                    </a>
+                    <a href="@Url.Action("History", "Queue")" class="text-gray-900 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        Historial
+                    </a>
+                </div>
+            </div>
+        }
     </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Task Manager G4</p>
+
+    @if (!ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase))
+    {
+        <!-- Main content -->
+        <main class="flex-1 max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
+            <div class="px-4 py-6 sm:px-0">
+                @RenderBody()
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-auto">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-sm text-gray-500">
+                    &copy; @DateTime.Now.Year - Sistema de Cola de Tareas
+                </p>
+            </div>
         </footer>
-    </div>
+    }
+    else
+    {
+        <!-- Auth pages - full screen without main/footer restrictions -->
+        <main class="flex-1">
+            @RenderBody()
+        </main>
+    }
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    
+    @if (!ViewContext.RouteData.Values["controller"].ToString().Equals("Account", StringComparison.OrdinalIgnoreCase))
+    {
+        <script>
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('hidden');
+            });
+        </script>
+    }
+    
     @RenderSection("scripts", required: false)
 </body>
 </html>

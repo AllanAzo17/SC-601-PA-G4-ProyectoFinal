@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -16,6 +14,13 @@ namespace ProyectoFinal.MVC
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            System.Diagnostics.Debug.WriteLine("Aplicación MVC iniciada correctamente");
+        }
+
+        protected void Application_End()
+        {
+            System.Diagnostics.Debug.WriteLine("Aplicación MVC finalizada");
         }
     }
 }
