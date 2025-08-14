@@ -1,72 +1,187 @@
 ﻿@model ProyectoFinal.MVC.Models.ManageLoginsViewModel
 @using Microsoft.Owin.Security
 @{
-    ViewBag.Title = "Manage your external logins";
+    ViewBag.Title = "Gestionar Inicios de Sesión Externos";
 }
 
-<main aria-labelledby="title">
-<h2 id="title">@ViewBag.Title.</h2>
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center mb-4">
+            <a href="@Url.Action("Index", "Manage")" class="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">Gestionar Inicios de Sesión Externos</h1>
+        </div>
+        <p class="text-gray-600">Conecta o desconecta cuentas externas para iniciar sesión</p>
+    </div>
 
-    <p class="text-success">@ViewBag.StatusMessage</p>
+    <!-- Status Message -->
+    @if (!string.IsNullOrEmpty(ViewBag.StatusMessage))
+    {
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-800">@ViewBag.StatusMessage</p>
+                </div>
+            </div>
+        </div>
+    }
+
     @{
         var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
         if (loginProviders.Count() == 0) {
-            <div>
-                <p>
-                    There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkId=313242">this article</a>
-                    for details on setting up this ASP.NET application to support logging in via external services.
-                </p>
+            <!-- No External Providers -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">No hay proveedores externos configurados</h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>
+                                No hay servicios de autenticación externa configurados. Consulta la 
+                                <a href="https://go.microsoft.com/fwlink/?LinkId=313242" class="font-medium underline hover:text-yellow-600">
+                                    documentación oficial
+                                </a> 
+                                para obtener detalles sobre cómo configurar esta aplicación ASP.NET para soportar inicios de sesión a través de servicios externos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
         else
         {
+            <!-- Current Logins -->
             if (Model.CurrentLogins.Count > 0)
             {
-                <h4>Registered Logins</h4>
-                <table class="table">
-                    <tbody>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Inicios de sesión registrados</h3>
+                            <p class="text-sm text-gray-500">Cuentas externas conectadas a tu perfil</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
                         @foreach (var account in Model.CurrentLogins)
                         {
-                            <tr>
-                                <td>@account.LoginProvider</td>
-                                <td>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">@account.LoginProvider</p>
+                                        <p class="text-xs text-gray-500">Conectado</p>
+                                    </div>
+                                </div>
+                                <div>
                                     @if (ViewBag.ShowRemoveButton)
                                     {
                                         using (Html.BeginForm("RemoveLogin", "Manage"))
                                         {
                                             @Html.AntiForgeryToken()
-                                            <div>
-                                                @Html.Hidden("loginProvider", account.LoginProvider)
-                                                @Html.Hidden("providerKey", account.ProviderKey)
-                                                <input type="submit" class="btn btn-outline-dark" value="Remove" title="Remove this @account.LoginProvider login from your account" />
-                                            </div>
+                                            @Html.Hidden("loginProvider", account.LoginProvider)
+                                            @Html.Hidden("providerKey", account.ProviderKey)
+                                            <button type="submit" class="inline-flex items-center px-3 py-2 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 transition-colors" title="Eliminar este inicio de sesión de @account.LoginProvider de tu cuenta">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Desconectar
+                                            </button>
                                         }
                                     }
                                     else
                                     {
-                                        @: &nbsp;
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            No se puede eliminar
+                                        </span>
                                     }
-                                </td>
-                            </tr>
+                                </div>
+                            </div>
                         }
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             }
+
+            <!-- Other Logins -->
             if (Model.OtherLogins.Count > 0)
             {
-                using (Html.BeginForm("LinkLogin", "Manage"))
-                {
-                    @Html.AntiForgeryToken()
-                    <div id="socialLoginList">
-                    <p>
-                        @foreach (AuthenticationDescription p in Model.OtherLogins)
-                        {
-                            <button type="submit" class="btn btn-default" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Log in using your @p.Caption account">@p.AuthenticationType</button>
-                        }
-                    </p>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-gray-900">Conectar nueva cuenta</h3>
+                            <p class="text-sm text-gray-500">Agrega otro proveedor de inicio de sesión</p>
+                        </div>
                     </div>
-                }
+                    
+                    using (Html.BeginForm("LinkLogin", "Manage"))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="space-y-3">
+                            @foreach (AuthenticationDescription p in Model.OtherLogins)
+                            {
+                                <button type="submit" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors" id="@p.AuthenticationType" name="provider" value="@p.AuthenticationType" title="Iniciar sesión usando tu cuenta de @p.Caption">
+                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                    Conectar con @p.AuthenticationType
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
             }
         }
     }
-</main>
+
+    <!-- Information -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Información sobre inicios de sesión externos</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Los inicios de sesión externos te permiten acceder sin recordar otra contraseña</li>
+                        <li>Puedes conectar múltiples proveedores a tu cuenta</li>
+                        <li>Algunos proveedores pueden no permitir la desconexión por razones de seguridad</li>
+                        <li>Mantén al menos un método de inicio de sesión activo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

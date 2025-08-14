@@ -73,6 +73,9 @@ namespace ProyectoFinal.MVC.Controllers
                 return View(model);
             }
 
+            // Debug: Log the RememberMe value
+            System.Diagnostics.Debug.WriteLine($"RememberMe value: {model.RememberMe}");
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);

@@ -54,25 +54,49 @@ namespace ProyectoFinal.MVC.Controllers
         // GET: /Manage/Index
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
+            // Verificar que el usuario esté autenticado
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                : message == ManageMessageId.Error ? "An error has occurred."
-                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-                : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                message == ManageMessageId.ChangePasswordSuccess ? "Tu contraseña ha sido cambiada."
+                : message == ManageMessageId.SetPasswordSuccess ? "Tu contraseña ha sido configurada."
+                : message == ManageMessageId.SetTwoFactorSuccess ? "Tu proveedor de autenticación de dos factores ha sido configurado."
+                : message == ManageMessageId.Error ? "Ha ocurrido un error."
+                : message == ManageMessageId.AddPhoneSuccess ? "Tu número de teléfono fue agregado."
+                : message == ManageMessageId.RemovePhoneSuccess ? "Tu número de teléfono fue removido."
                 : "";
 
-            var userId = User.Identity.GetUserId();
-            var model = new IndexViewModel
+            try
             {
-                HasPassword = HasPassword(),
-                PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
-                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
-                Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
-            };
-            return View(model);
+                var userId = User.Identity.GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ViewBag.StatusMessage = "Error: No se pudo identificar al usuario.";
+                    return View(new IndexViewModel());
+                }
+
+                var user = await UserManager.FindByIdAsync(userId);
+                var model = new IndexViewModel
+                {
+                    HasPassword = HasPassword(),
+                    PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
+                    TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
+                    Logins = await UserManager.GetLoginsAsync(userId),
+                    BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                    Email = user?.Email ?? User.Identity.Name
+                };
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging
+                System.Diagnostics.Debug.WriteLine($"Error in Manage/Index: {ex.Message}");
+                ViewBag.StatusMessage = "Error: No se pudo cargar la información del perfil.";
+                return View(new IndexViewModel());
+            }
         }
 
         //
