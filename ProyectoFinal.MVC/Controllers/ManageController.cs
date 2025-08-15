@@ -54,7 +54,6 @@ namespace ProyectoFinal.MVC.Controllers
         // GET: /Manage/Index
         public async Task<ActionResult> Index(ManageMessageId? message)
         {
-            // Verificar que el usuario esté autenticado
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account");

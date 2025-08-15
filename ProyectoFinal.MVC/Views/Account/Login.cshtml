@@ -21,6 +21,14 @@
                 <p class="mt-2 text-sm text-gray-600">
                     Accede a tu cuenta para gestionar las tareas
                 </p>
+                @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl))
+                {
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <strong>Acceso requerido:</strong> Debes iniciar sesión para acceder a esta página.
+                        </p>
+                    </div>
+                }
             </div>
 
             <!-- Login Form -->
@@ -128,12 +136,10 @@
     
     <script>
         $(document).ready(function() {
-            // Debug: Log form submission to verify RememberMe value
             $('form').on('submit', function(e) {
                 var rememberMe = $('#RememberMe').is(':checked');
                 console.log('RememberMe checkbox checked:', rememberMe);
                 
-                // Ensure the checkbox value is properly set
                 if (rememberMe) {
                     $('#RememberMe').val('true');
                 } else {
@@ -141,7 +147,6 @@
                 }
             });
             
-            // Debug: Log checkbox change events
             $('#RememberMe').on('change', function() {
                 console.log('RememberMe checkbox changed to:', $(this).is(':checked'));
             });

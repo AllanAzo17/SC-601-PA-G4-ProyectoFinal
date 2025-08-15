@@ -7,6 +7,7 @@ using ProyectoFinal.Data;
 
 namespace ProyectoFinal.MVC.Controllers
 {
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly TaskBusiness taskBusiness;

@@ -11,6 +11,7 @@ using ProyectoFinal.Data;
 
 namespace ProyectoFinal.MVC.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly TaskBusiness taskBusiness;
@@ -24,7 +25,6 @@ namespace ProyectoFinal.MVC.Controllers
         public ActionResult Index()
         {
             var task = taskBusiness.Get(id: null);
-            // Ordenar tareas: primero las Pendientes, luego por fecha de creación (más recientes primero)
             var orderedTasks = task.OrderByDescending(t => t.Status == "Pendiente")
                                    .ThenByDescending(t => t.CreatedAt)
                                    .ToList();
@@ -209,13 +209,11 @@ namespace ProyectoFinal.MVC.Controllers
 
                 System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Tarea encontrada - ID: {task.TaskId}, Estado actual: {task.Status}");
 
-                // Cambiar estado a "Pendiente" para permitir reintento
                 task.Status = "Pendiente";
                 taskBusiness.Save(task.TaskId, task);
 
                 System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Estado cambiado a 'Pendiente'");
 
-                // Agregar a la cola para procesamiento
                 taskBusiness.EnqueueTask(id);
 
                 System.Diagnostics.Debug.WriteLine($"TasksController.Retry: Tarea agregada a la cola exitosamente");

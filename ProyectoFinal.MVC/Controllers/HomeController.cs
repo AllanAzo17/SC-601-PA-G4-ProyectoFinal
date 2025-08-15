@@ -6,11 +6,17 @@ using System.Web.Mvc;
 
 namespace ProyectoFinal.MVC.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         public ActionResult Index()
         {
-            return RedirectToAction("Index", "Dashboard");
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            
+            return RedirectToAction("Login", "Account");
         }
 
         public ActionResult About()

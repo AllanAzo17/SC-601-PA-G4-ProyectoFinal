@@ -151,12 +151,10 @@
         $(document).ready(function () {
             var token = $('input[name="__RequestVerificationToken"]').val();
             
-            // Agrega tareas pendientes a la cola de procesamiento
             $('.enqueue-task').click(function () {
                 var taskId = $(this).data('task-id');
                 var button = $(this);
                 
-                // Mostrar confirmación con SweetAlert2
                 Swal.fire({
                     title: '¿Encolar tarea?',
                     text: '¿Estás seguro de que deseas agregar esta tarea a la cola de procesamiento?',
@@ -168,7 +166,6 @@
                     cancelButtonColor: '#6B7280'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Deshabilitar botón durante la operación
                         button.prop('disabled', true);
                         button.text('Encolando...');
                         
@@ -201,7 +198,6 @@
                                         confirmButtonText: 'Aceptar',
                                         confirmButtonColor: '#EF4444'
                                     });
-                                    // Restaurar botón
                                     button.prop('disabled', false);
                                     button.text('Encolar');
                                 }
@@ -214,7 +210,6 @@
                                     confirmButtonText: 'Aceptar',
                                     confirmButtonColor: '#EF4444'
                                 });
-                                // Restaurar botón
                                 button.prop('disabled', false);
                                 button.text('Encolar');
                             }
@@ -223,7 +218,6 @@
                 });
             });
 
-            // Eliminar tarea
             $('.delete-task').click(function () {
                 var taskId = $(this).data('task-id');
                 var button = $(this);
@@ -239,7 +233,6 @@
                     cancelButtonColor: '#6B7280'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Deshabilitar botón durante la operación
                         button.prop('disabled', true);
                         button.text('Eliminando...');
 
@@ -272,7 +265,6 @@
                                         confirmButtonText: 'Aceptar',
                                         confirmButtonColor: '#EF4444'
                                     });
-                                    // Restaurar botón
                                     button.prop('disabled', false);
                                     button.text('Eliminar');
                                 }
@@ -285,7 +277,6 @@
                                     confirmButtonText: 'Aceptar',
                                     confirmButtonColor: '#EF4444'
                                 });
-                                // Restaurar botón
                                 button.prop('disabled', false);
                                 button.text('Eliminar');
                             }

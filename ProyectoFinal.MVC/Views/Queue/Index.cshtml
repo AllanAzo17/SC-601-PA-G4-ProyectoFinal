@@ -235,32 +235,27 @@
             console.log('Token obtenido:', token ? 'Sí' : 'No');
             console.log('Token valor:', token);
             
-            // Función para actualizar el botón del procesador dinámicamente
             function updateProcessorButton(isRunning) {
                 var button = $('#processorButton');
                 var buttonText = $('#processorButtonText');
                 var buttonIcon = button.find('svg path');
                 
-                // Asegurar que isRunning sea un boolean
                 var isRunningBool = false;
                 if (isRunning === true || isRunning === "true" || isRunning === 1) {
                     isRunningBool = true;
                 }
                 
                 if (isRunningBool) {
-                    // Cambiar a botón "Detener" (rojo)
                     button.removeClass('bg-green-600 hover:bg-green-700').addClass('bg-red-600 hover:bg-red-700');
                     buttonText.text('Detener Procesador');
                     buttonIcon.attr('d', 'M21 12a9 9 0 11-18 0 9 9 0 0118 0z M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z');
                 } else {
-                    // Cambiar a botón "Iniciar" (verde)
                     button.removeClass('bg-red-600 hover:bg-red-700').addClass('bg-green-600 hover:bg-green-700');
                     buttonText.text('Iniciar Procesador');
                     buttonIcon.attr('d', 'M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
                 }
             }
 
-            // Obtiene y actualiza el estado del procesador, contador de cola y timestamp
             function updateProcessorStatus() {
                 console.log('updateProcessorStatus: Iniciando consulta de estado...');
                 $.ajax({
@@ -268,11 +263,9 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
-                        // Acceder directamente a las propiedades del objeto JSON
                         var isRunning = data.isProcessorRunning;
                         var queueCount = data.queueCount;
 
-                        // Asegurar conversión correcta a boolean
                         if (isRunning === true || isRunning === "true" || isRunning === 1) {
                             processorRunning = true;
                         } else {
@@ -291,7 +284,6 @@
                         $('#queueCount').text(queueCount);
                         $('#lastUpdate').text(new Date().toLocaleTimeString());
                         
-                        // Actualizar el botón dinámicamente con el estado real del servidor
                         updateProcessorButton(isRunning);
                     },
                     error: function (xhr, status, error) {
@@ -300,7 +292,6 @@
                 });
             }
 
-            // Actualiza las tablas de cola y historial con datos del servidor
             function updateTables() {
                 console.log('updateTables: Iniciando actualización de tablas...');
                 $.get('@Url.Action("TableData", "Queue")')
@@ -310,7 +301,6 @@
                         var queueBody = $('#queueTableBody');
                         var queueEmptyMessage = $('#queueEmptyMessage');
                         
-                        // Solo actualizar la tabla de cola si hay datos o si está vacía
                         if (data.queueStatus && data.queueStatus.length > 0) {
                             console.log('updateTables: Actualizando tabla de cola con', data.queueStatus.length, 'elementos');
                             queueBody.empty();
@@ -334,7 +324,6 @@
                             queueEmptyMessage.hide();
                             queueBody.show();
                         } else if (queueBody.children().length === 0) {
-                            // Solo mostrar mensaje vacío si la tabla ya está vacía
                             console.log('updateTables: Tabla de cola ya está vacía, manteniendo estado actual');
                         } else {
                             console.log('updateTables: No hay datos en la cola, pero manteniendo datos existentes');
@@ -343,7 +332,6 @@
                         var historyBody = $('#historyTableBody');
                         var historyEmptyMessage = $('#historyEmptyMessage');
                         
-                        // Solo actualizar la tabla de historial si hay datos o si está vacía
                         if (data.executionHistory && data.executionHistory.length > 0) {
                             console.log('updateTables: Actualizando tabla de historial con', data.executionHistory.length, 'elementos');
                             historyBody.empty();
@@ -363,7 +351,6 @@
                             historyEmptyMessage.hide();
                             historyBody.show();
                         } else if (historyBody.children().length === 0) {
-                            // Solo mostrar mensaje vacío si la tabla ya está vacía
                             console.log('updateTables: Tabla de historial ya está vacía, manteniendo estado actual');
                         } else {
                             console.log('updateTables: No hay datos en el historial, pero manteniendo datos existentes');
@@ -374,13 +361,11 @@
                     });
             }
 
-            // Actualiza estado del procesador y tablas
             function refreshAll() {
                 updateProcessorStatus();
                 updateTables();
             }
 
-            // Control de intervalos y estado del procesador
             var autoProcessingInterval = null;
             var autoRefreshInterval = null;
             var processorRunning = false;
@@ -389,29 +374,23 @@
                 processorRunning = true;
             }
 
-            // Configura actualización automática del estado y tablas cada 10 segundos
             function startAutoRefresh() {
-                // Solo actualizar el estado del procesador inicialmente
                 setTimeout(function() {
                     updateProcessorStatus();
                 }, 1000);
                 
-                // Primera actualización de tablas después de 5 segundos
                 setTimeout(function() {
                     updateTables();
                 }, 5000);
                 
-                // Actualizaciones posteriores cada 10 segundos
                 autoRefreshInterval = setInterval(function() {
                     updateProcessorStatus();
-                    // Solo actualizar tablas si hay cambios significativos
                     if (processorRunning === true) {
                         updateTables();
                     }
                 }, 10000);
             }
 
-            // Configura procesamiento automático de tareas cada 15 segundos
             function startAutoProcessing() {
                 autoProcessingInterval = setInterval(function() {
                     var isRunning = processorRunning === true;
@@ -421,7 +400,6 @@
                 }, 15000);
             }
 
-            // Procesa la siguiente tarea en cola y actualiza las tablas
             function processNextTask() {
                 $.ajax({
                     url: '@Url.Action("ProcessNext", "Queue")',
@@ -432,12 +410,10 @@
                         if (response.success) {
                             console.log('Procesamiento automático: ' + response.message);
                             
-                            // Mostrar mensaje de recarga
                             var reloadMessage = $('<div class="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded z-50">' +
                                 '<strong>Actualizando:</strong> Recargando página para mostrar cambios...</div>');
                             $('body').append(reloadMessage);
                             
-                            // Recargar página después de 1 segundo
                             setTimeout(function() {
                                 console.log('Procesamiento automático completado, recargando página...');
                                 location.reload();
@@ -452,7 +428,6 @@
                 });
             }
 
-            // Detiene todos los intervalos de procesamiento automático
             function stopAutoProcessing() {
                 if (autoProcessingInterval) {
                     clearInterval(autoProcessingInterval);
@@ -464,21 +439,17 @@
                 }
             }
 
-            // Inicialización del sistema
             console.log('Iniciando sistema...');
             
-            // Inicializar el botón del procesador con el estado actual
             var initialButtonState = @Html.Raw(Json.Encode(ViewBag.IsProcessorRunning));
             updateProcessorButton(initialButtonState);
             
             updateProcessorStatus();
             
-            // Iniciar actualizaciones automáticas
             startAutoRefresh();
             startAutoProcessing();
             
             
-            // Event handler unificado para el botón del procesador
             $(document).on('click', '#processorButton', function() {
                 var button = $(this);
                 var buttonText = button.find('#processorButtonText');
@@ -487,7 +458,6 @@
                 var originalText = buttonText.text();
                 var originalIcon = buttonIcon.attr('d');
                 
-                // Deshabilitar botón y mostrar spinner
                 button.prop('disabled', true);
                 if (isCurrentlyRunning) {
                     buttonText.text('Deteniendo...');
@@ -498,7 +468,6 @@
                 }
                 
                 if (isCurrentlyRunning) {
-                    // Detener procesador
                     $.ajax({
                         url: '@Url.Action("Stop", "Queue")',
                         type: 'POST',
@@ -510,7 +479,6 @@
                                     '<strong>Procesador Detenido:</strong> ' + response.message + '</div>');
                                 $('body').append(successMessage);
                                 
-                                // Actualizar estado inmediatamente
                                 updateProcessorStatus();
                                 
                                 setTimeout(function() {
@@ -524,14 +492,12 @@
                             alert('Error al detener el procesador: ' + error);
                         },
                         complete: function() {
-                            // Restaurar botón
                             button.prop('disabled', false);
                             buttonText.text(originalText);
                             buttonIcon.attr('d', originalIcon);
                         }
                     });
                 } else {
-                    // Iniciar procesador
                     $.ajax({
                         url: '@Url.Action("Start", "Queue")',
                         type: 'POST',
@@ -543,7 +509,6 @@
                                     '<strong>Procesador Iniciado:</strong> ' + response.message + '</div>');
                                 $('body').append(successMessage);
                                 
-                                // Actualizar estado inmediatamente
                                 updateProcessorStatus();
                                 
                                 setTimeout(function() {
@@ -559,7 +524,6 @@
                             alert('Error al iniciar el procesador: ' + error);
                         },
                         complete: function() {
-                            // Restaurar botón
                             button.prop('disabled', false);
                             buttonText.text(originalText);
                             buttonIcon.attr('d', originalIcon);
@@ -570,7 +534,6 @@
 
 
             
-            // Procesa manualmente la siguiente tarea en cola
             $(document).on('click', '#processNext', function() {
                 var button = $(this);
                 var originalText = button.html();
@@ -592,12 +555,10 @@
                                 successMessage.fadeOut(function() { $(this).remove(); });
                             }, 3000);
                             
-                            // Mostrar mensaje de recarga
                             var reloadMessage = $('<div class="fixed top-4 right-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded z-50">' +
                                 '<strong>Actualizando:</strong> Recargando página para mostrar cambios...</div>');
                             $('body').append(reloadMessage);
                             
-                            // Recargar página después de 1 segundo
                             setTimeout(function() {
                                 console.log('Procesamiento manual completado, recargando página...');
                                 location.reload();

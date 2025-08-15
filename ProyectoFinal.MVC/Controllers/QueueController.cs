@@ -7,6 +7,7 @@ using ProyectoFinal.Repository;
 
 namespace ProyectoFinal.MVC.Controllers
 {
+    [Authorize]
     public class QueueController : Controller
     {
         private readonly IRepositoryTaskQueue taskQueueRepository;
@@ -141,7 +142,6 @@ namespace ProyectoFinal.MVC.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("ProcessNext: Iniciando procesamiento...");
                 
-                // Obtener la siguiente tarea a procesar
                 var nextTask = taskQueueRepository.GetNextTaskToProcess();
                 if (nextTask != null)
                 {
@@ -154,27 +154,22 @@ namespace ProyectoFinal.MVC.Controllers
                         
                         try
                         {
-                            // Cambiar estado a "En Proceso" al iniciar el procesamiento
                             System.Diagnostics.Debug.WriteLine("ProcessNext: Cambiando estado a 'En Proceso'...");
                             taskRepository.UpdateTaskStatus(task.TaskId, "En Proceso");
                             
-                            // Simular ejecución de tarea
                             System.Diagnostics.Debug.WriteLine("ProcessNext: Simulando ejecución...");
                             System.Threading.Thread.Sleep(2000);
                             
-                            // Generar aleatoriedad: 70% éxito, 30% fallo
                             var random = new Random();
-                            var randomValue = random.Next(1, 101); // 1-100
-                            var isSuccess = randomValue <= 70; // 70% de probabilidad de éxito
+                            var randomValue = random.Next(1, 101);
+                            var isSuccess = randomValue <= 70;
                             
                             System.Diagnostics.Debug.WriteLine($"ProcessNext: Valor aleatorio: {randomValue}, Éxito: {isSuccess}");
                             
                             if (isSuccess)
                             {
-                                // Éxito (70% de probabilidad)
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Procesamiento exitoso");
                                 
-                                // Crear log de ejecución exitosa
                                 var log = new TaskLog
                                 {
                                     TaskId = task.TaskId,
@@ -186,16 +181,13 @@ namespace ProyectoFinal.MVC.Controllers
                                 
                                 taskLogRepository.Add(log);
                                 
-                                // Cambiar estado a "Finalizada"
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Cambiando estado a 'Finalizada'...");
                                 taskRepository.UpdateTaskStatus(task.TaskId, "Finalizada");
                             }
                             else
                             {
-                                // Fallo (30% de probabilidad)
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Procesamiento fallido");
                                 
-                                // Crear log de ejecución fallida
                                 var log = new TaskLog
                                 {
                                     TaskId = task.TaskId,
@@ -207,16 +199,13 @@ namespace ProyectoFinal.MVC.Controllers
                                 
                                 taskLogRepository.Add(log);
                                 
-                                // Cambiar estado a "Fallida"
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Cambiando estado a 'Fallida'...");
                                 taskRepository.UpdateTaskStatus(task.TaskId, "Fallida");
                             }
                             
-                            // Remover de la cola
                             System.Diagnostics.Debug.WriteLine("ProcessNext: Removiendo de la cola...");
                             taskQueueRepository.RemoveFromQueue(task.TaskId);
                             
-                            // Retornar mensaje según el resultado
                             if (isSuccess)
                             {
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Procesamiento completado exitosamente");
@@ -233,7 +222,6 @@ namespace ProyectoFinal.MVC.Controllers
                             System.Diagnostics.Debug.WriteLine($"ProcessNext: Error durante el procesamiento: {updateEx.Message}");
                             System.Diagnostics.Debug.WriteLine($"ProcessNext: StackTrace: {updateEx.StackTrace}");
                             
-                            // Si hay error al actualizar, intentar revertir el estado
                             try
                             {
                                 System.Diagnostics.Debug.WriteLine("ProcessNext: Intentando revertir estado a 'Pendiente'...");
@@ -336,8 +324,6 @@ namespace ProyectoFinal.MVC.Controllers
         }
 
 
-
-        // Método auxiliar para ordenar prioridades: Alta=1, Media=2, Baja=3
         private int GetPriorityOrder(string priority)
         {
             switch (priority?.ToLower())
@@ -370,12 +356,10 @@ namespace ProyectoFinal.MVC.Controllers
 
                 System.Diagnostics.Debug.WriteLine($"QueueController.Retry: Tarea encontrada - ID: {task.TaskId}, Estado actual: {task.Status}");
 
-                // Cambiar estado a "Pendiente" para permitir reintento
                 taskRepository.UpdateTaskStatus(id, "Pendiente");
 
                 System.Diagnostics.Debug.WriteLine($"QueueController.Retry: Estado cambiado a 'Pendiente'");
 
-                // Agregar a la cola para procesamiento
                 taskQueueRepository.AddToQueue(id);
 
                 System.Diagnostics.Debug.WriteLine($"QueueController.Retry: Tarea agregada a la cola exitosamente");

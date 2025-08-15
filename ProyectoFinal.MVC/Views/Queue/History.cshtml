@@ -207,12 +207,10 @@
     
     <script>
         $(document).ready(function () {
-            // Reintenta tareas fallidas desde el historial de ejecución
             $('.retry-task').click(function () {
                 var taskId = $(this).data('task-id');
                 var button = $(this);
 
-                // Mostrar confirmación con SweetAlert2
                 Swal.fire({
                     title: '¿Reintentar tarea?',
                     text: '¿Estás seguro de que deseas reintentar esta tarea fallida?',
@@ -224,7 +222,6 @@
                     cancelButtonColor: '#6B7280'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Deshabilitar botón durante la operación
                         button.prop('disabled', true);
                         button.text('Reintentando...');
                         
@@ -256,7 +253,6 @@
                                         confirmButtonText: 'Aceptar',
                                         confirmButtonColor: '#EF4444'
                                     });
-                                    // Restaurar botón
                                     button.prop('disabled', false);
                                     button.text('Reintentar');
                                 }
@@ -272,7 +268,6 @@
                                     confirmButtonText: 'Aceptar',
                                     confirmButtonColor: '#EF4444'
                                 });
-                                // Restaurar botón
                                 button.prop('disabled', false);
                                 button.text('Reintentar');
                             }
