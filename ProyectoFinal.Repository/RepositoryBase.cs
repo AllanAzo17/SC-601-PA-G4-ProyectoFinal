@@ -43,7 +43,6 @@
             Save();
         }
 
-        // Actualiza una entidad existente en la base de datos usando Entity Framework
         public void Update(T entity)
         {
             try
@@ -72,7 +71,6 @@
             }
         }
 
-        // Obtiene el ID de una entidad usando reflexión para buscar propiedades comunes de ID
         private int GetEntityId(T entity)
         {
             var idProperty = typeof(T).GetProperty("TaskId") ?? 

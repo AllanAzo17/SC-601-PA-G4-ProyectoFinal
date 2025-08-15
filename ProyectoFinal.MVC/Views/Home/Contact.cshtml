@@ -1,19 +1,96 @@
 ﻿@{
     ViewBag.Title = "Contact";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
 
-    <address>
-        One Microsoft Way<br />
-        Redmond, WA 98052-6399<br />
-        <abbr title="Phone">P:</abbr>
-        425.555.0100
-    </address>
+<section id="contacto" class="container">
+    <h2>Contacto</h2>
+    <div class="contact-form">
+        <div id="alert" class="alert" style="display:none;"></div>
+        <div id="spinner" class="spinner" style="display:none;">Enviando...</div>
 
-    <address>
-        <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-        <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-    </address>
-</main>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Asunto</label>
+                <input type="text" id="subject" name="subject" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Mensaje</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+
+            <button type="submit" class="btn">Enviar Mensaje</button>
+        </form>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  (function() {
+      emailjs.init("DvkQr9T-CzO1LF4kv");
+  })();
+
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const alertBox = document.getElementById('alert');
+    const spinner = document.getElementById('spinner');
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const subject = document.getElementById('subject').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = 'alert ' + (type === 'success' ? 'alert-success' : 'alert-error');
+      alertBox.style.display = 'block';
+      setTimeout(() => alertBox.style.display = 'none', 5000);
+    }
+
+    if (!name || !email || !subject || !message) {
+      showAlert('Por favor completa todos los campos', 'error');
+      return;
+    }
+
+      const re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+      if (!re.test(email.toLowerCase())) {
+      showAlert('Por favor ingresa un email válido', 'error');
+      return;
+    }
+
+    if (Math.random() < 0.3) {
+      showAlert('Error simulado del 30% al enviar el mensaje.', 'error');
+      return;
+    }
+
+    spinner.style.display = 'block';
+    alertBox.style.display = 'none';
+
+    emailjs.send("service_lhi6zid", "template_eesy2nr", {
+      from_name: name,
+      reply_to: email,
+      subject: subject,
+      message: message,
+        to_email: "theejosh2@@gmail.com"
+    })
+    .then(function(response) {
+      spinner.style.display = 'none';
+        showAlert('Error simulado del 30% al enviar el mensaje.', 'error'.', 'success');
+      document.getElementById('contactForm').reset();
+    }, function(error) {
+      spinner.style.display = 'none';
+      showAlert('Error al enviar el mensaje: ' + error.text, 'error');
+    });
+  });
+</script>

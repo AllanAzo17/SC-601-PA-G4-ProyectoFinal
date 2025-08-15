@@ -19,7 +19,6 @@ namespace ProyectoFinal.Repository
         {
         }
 
-        // Obtiene todas las tareas en la cola ordenadas por prioridad y fecha de creación
         public IEnumerable<TaskQueue> GetPendingTasks()
         {
             try
@@ -50,7 +49,6 @@ namespace ProyectoFinal.Repository
             }
         }
 
-        // Método auxiliar para ordenar prioridades: Alta=1, Media=2, Baja=3
         private int GetPriorityOrder(string priority)
         {
             switch (priority?.ToLower())
@@ -62,11 +60,10 @@ namespace ProyectoFinal.Repository
                 case "baja":
                     return 3;
                 default:
-                    return 4; // Prioridad desconocida va al final
+                    return 4;
             }
         }
 
-        // Obtiene la siguiente tarea a procesar según prioridad y fecha de creación
         public TaskQueue GetNextTaskToProcess()
         {
             try
@@ -100,7 +97,6 @@ namespace ProyectoFinal.Repository
             }
         }
 
-        // Remueve una tarea específica de la cola de procesamiento
         public void RemoveFromQueue(int taskId)
         {
             var queueItem = _context.TaskQueues.FirstOrDefault(q => q.TaskId == taskId);
@@ -111,20 +107,17 @@ namespace ProyectoFinal.Repository
             }
         }
 
-        // Agrega una tarea a la cola de procesamiento
         public void AddToQueue(int taskId)
         {
             try
             {
-                // Verificar si la tarea ya está en la cola
                 var existingItem = _context.TaskQueues.FirstOrDefault(q => q.TaskId == taskId);
                 if (existingItem != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"RepositoryTaskQueue.AddToQueue: La tarea {taskId} ya está en la cola");
-                    return; // Ya está en la cola, no hacer nada
+                    return;
                 }
 
-                // Crear nuevo item en la cola
                 var queueItem = new TaskQueue
                 {
                     TaskId = taskId,

@@ -18,7 +18,6 @@ namespace ProyectoFinal.Repository
         {
         }
 
-        // Obtiene todos los logs de ejecución de una tarea específica ordenados por fecha
         public IEnumerable<TaskLog> GetLogsByTaskId(int taskId)
         {
             return _context.TaskLogs
@@ -28,7 +27,6 @@ namespace ProyectoFinal.Repository
                 .ToList();
         }
 
-        // Obtiene los logs más recientes de ejecución limitados por cantidad
         public IEnumerable<TaskLog> GetRecentLogs(int count = 50)
         {
             try
@@ -43,7 +41,7 @@ namespace ProyectoFinal.Repository
                 
                 System.Diagnostics.Debug.WriteLine($"RepositoryTaskLog.GetRecentLogs: Encontrados {result.Count()} logs");
                 
-                foreach (var log in result.Take(5)) // Solo mostrar los primeros 5 para no saturar el log
+                foreach (var log in result.Take(5))
                 {
                     System.Diagnostics.Debug.WriteLine($"  - TaskId: {log.TaskId}, Title: {log.Task?.Title}, Success: {log.Success}, Start: {log.ExecutionStart}");
                 }
@@ -58,7 +56,6 @@ namespace ProyectoFinal.Repository
             }
         }
 
-        // Agrega un nuevo log de ejecución a la base de datos
         public void AddLog(TaskLog log)
         {
             _context.TaskLogs.Add(log);

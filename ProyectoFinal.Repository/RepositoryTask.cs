@@ -18,7 +18,6 @@ namespace ProyectoFinal.Repository
         {
         }
 
-        // Actualiza el estado de una tarea específica de forma atómica
         public void UpdateTaskStatus(int taskId, string status)
         {
             try
@@ -30,7 +29,6 @@ namespace ProyectoFinal.Repository
                 {
                     System.Diagnostics.Debug.WriteLine($"UpdateTaskStatus: Tarea encontrada - ID: {task.TaskId}, Estado actual: {task.Status}");
                     
-                    // Validar que el estado sea válido según las restricciones de la BD
                     if (status != "Pendiente" && status != "En Proceso" && status != "Finalizada" && status != "Fallida")
                     {
                         throw new ArgumentException($"Estado '{status}' no es válido. Estados permitidos: Pendiente, En Proceso, Finalizada, Fallida");

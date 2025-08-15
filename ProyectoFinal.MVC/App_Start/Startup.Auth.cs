@@ -26,6 +26,8 @@ namespace ProyectoFinal.MVC
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Account/Login"),
+                ExpireTimeSpan = TimeSpan.FromDays(30), // Cookie expires after 30 days
+                SlidingExpiration = true, // Cookie will be renewed on each request if more than half the time has passed
                 Provider = new CookieAuthenticationProvider
                 {
                     // Enables the application to validate the security stamp when the user logs in.

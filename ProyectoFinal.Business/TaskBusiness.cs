@@ -19,7 +19,6 @@ namespace ProyectoFinal.Business
             taskQueueRepository = new RepositoryTaskQueue();
         }
 
-        // Obtiene una tarea específica o todas las tareas según el ID proporcionado
         public IEnumerable<TaskEntity> Get(int? id)
         {
             var task = new List<TaskEntity>();
@@ -31,19 +30,16 @@ namespace ProyectoFinal.Business
             return task;
         }
 
-        // Obtiene todas las tareas del repositorio
         public IEnumerable<TaskEntity> GetAllTasks()
         {
             return repositoryTask.GetAll();
         }
 
-        // Obtiene una tarea específica por su ID
         public TaskEntity GetTaskById(int id)
         {
             return repositoryTask.GetById(id);
         }
 
-        // Crea una nueva tarea con estado "Pendiente" y fecha de creación actual
         public int CreateTask(TaskEntity entity)
         {
             entity.Status = "Pendiente";
@@ -52,7 +48,6 @@ namespace ProyectoFinal.Business
             return entity.TaskId;
         }
 
-        // Guarda o actualiza una tarea según el ID, evitando modificar tareas en proceso o finalizadas
         public int Save(int id, TaskEntity entity)
         {
             if (id <= 0)
@@ -78,7 +73,6 @@ namespace ProyectoFinal.Business
             }
         }
 
-        // Actualiza una tarea existente solo si no está en proceso o finalizada
         public void UpdateTask(TaskEntity entity)
         {
             var exist = repositoryTask.GetById(entity.TaskId);
@@ -93,7 +87,6 @@ namespace ProyectoFinal.Business
             }
         }
 
-        // Elimina una tarea solo si no está en proceso o finalizada
         public void DeleteTask(int id)
         {
             var task = repositoryTask.GetById(id);
@@ -103,25 +96,21 @@ namespace ProyectoFinal.Business
             }
         }
 
-        // Alias para DeleteTask
         public void Delete(int id)
         {
             DeleteTask(id);
         }
 
-        // Filtra tareas por estado específico
         public IEnumerable<TaskEntity> GetTasksByStatus(string status)
         {
             return repositoryTask.GetAll().Where(t => t.Status == status);
         }
 
-        // Filtra tareas por prioridad específica
         public IEnumerable<TaskEntity> GetTasksByPriority(string priority)
         {
             return repositoryTask.GetAll().Where(t => t.Priority == priority);
         }
 
-        // Agrega una tarea pendiente a la cola de procesamiento evitando duplicados
         public void EnqueueTask(int taskId)
         {
             var task = repositoryTask.GetById(taskId);
@@ -131,7 +120,6 @@ namespace ProyectoFinal.Business
             }
         }
 
-        // Genera un resumen estadístico de todas las tareas por estado
         public TaskDashboardSummary GetTaskSummary()
         {
             var allTasks = repositoryTask.GetAll();

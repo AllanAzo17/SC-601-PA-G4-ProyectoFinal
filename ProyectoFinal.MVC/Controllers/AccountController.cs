@@ -12,7 +12,6 @@ using ProyectoFinal.MVC.Models;
 
 namespace ProyectoFinal.MVC.Controllers
 {
-    [Authorize]
     public class AccountController : Controller
     {
         private ApplicationSignInManager _signInManager;
@@ -72,6 +71,9 @@ namespace ProyectoFinal.MVC.Controllers
             {
                 return View(model);
             }
+
+            // Debug: Log the RememberMe value
+            System.Diagnostics.Debug.WriteLine($"RememberMe value: {model.RememberMe}");
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
@@ -389,10 +391,11 @@ namespace ProyectoFinal.MVC.Controllers
         // POST: /Account/LogOff
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         //
@@ -449,7 +452,7 @@ namespace ProyectoFinal.MVC.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult

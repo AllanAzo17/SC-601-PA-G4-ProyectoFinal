@@ -13,7 +13,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Gestión de Tareas</h1>
-                <p class="mt-2 text-sm text-gray-600">Sistema simple de gestión de tareas</p>
+                <p class="mt-2 text-sm text-gray-600">Sistema de gestión de tareas</p>
             </div>
             <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
                 <a href="@Url.Action("Create", "Tasks")" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
@@ -128,11 +128,10 @@
                                     
                                     @if (item.Status != "En Proceso" && item.Status != "Finalizada")
                                     {
-                                        <a href="@Url.Action("Delete", "Tasks", new { id = item.TaskId })" 
-                                           class="inline-flex items-center px-2 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors"
-                                           onclick="return confirm('¿Está seguro de que desea eliminar esta tarea?')">
+                                        <button class="inline-flex items-center px-2 py-1 text-xs bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors delete-task" 
+                                                data-task-id="@item.TaskId">
                                             Eliminar
-                                        </a>
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -145,32 +144,143 @@
 </div>
 
 @section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         $(document).ready(function () {
             var token = $('input[name="__RequestVerificationToken"]').val();
             
-            // Agrega tareas pendientes a la cola de procesamiento
             $('.enqueue-task').click(function () {
                 var taskId = $(this).data('task-id');
+                var button = $(this);
                 
-                $.ajax({
-                    url: '@Url.Action("Enqueue", "Tasks")',
-                    type: 'POST',
-                    data: { 
-                        id: taskId,
-                        __RequestVerificationToken: token
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.success) {
-                            alert('Tarea agregada a la cola');
-                            location.reload();
-                        } else {
-                            alert('Error: ' + response.message);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        alert('Error al procesar la solicitud: ' + error);
+                Swal.fire({
+                    title: '¿Encolar tarea?',
+                    text: '¿Estás seguro de que deseas agregar esta tarea a la cola de procesamiento?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, encolar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#10B981',
+                    cancelButtonColor: '#6B7280'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        button.prop('disabled', true);
+                        button.text('Encolando...');
+                        
+                        $.ajax({
+                            url: '@Url.Action("Enqueue", "Tasks")',
+                            type: 'POST',
+                            data: { 
+                                id: taskId,
+                                __RequestVerificationToken: token
+                            },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: '¡Éxito!',
+                                        text: 'Tarea agregada a la cola exitosamente',
+                                        icon: 'success',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#10B981',
+                                        timer: 2000,
+                                        timerProgressBar: true
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: response.message || 'Error al encolar la tarea',
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#EF4444'
+                                    });
+                                    button.prop('disabled', false);
+                                    button.text('Encolar');
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error al procesar la solicitud: ' + error,
+                                    icon: 'error',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                button.prop('disabled', false);
+                                button.text('Encolar');
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('.delete-task').click(function () {
+                var taskId = $(this).data('task-id');
+                var button = $(this);
+
+                Swal.fire({
+                    title: '¿Eliminar tarea?',
+                    text: '¿Estás seguro de que deseas eliminar esta tarea?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#EF4444',
+                    cancelButtonColor: '#6B7280'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        button.prop('disabled', true);
+                        button.text('Eliminando...');
+
+                        $.ajax({
+                            url: '@Url.Action("DeleteAjax", "Tasks")',
+                            type: 'POST',
+                            data: { 
+                                id: taskId,
+                                __RequestVerificationToken: token
+                            },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        title: '¡Éxito!',
+                                        text: 'Tarea eliminada exitosamente',
+                                        icon: 'success',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#10B981',
+                                        timer: 2000,
+                                        timerProgressBar: true
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: response.message || 'Error al eliminar la tarea',
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#EF4444'
+                                    });
+                                    button.prop('disabled', false);
+                                    button.text('Eliminar');
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error al procesar la solicitud: ' + error,
+                                    icon: 'error',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                button.prop('disabled', false);
+                                button.text('Eliminar');
+                            }
+                        });
                     }
                 });
             });
