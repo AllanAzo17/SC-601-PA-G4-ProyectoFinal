@@ -311,6 +311,9 @@
 </div>
 
 @section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         $(document).ready(function () {
             // Reintenta tareas fallidas desde el dashboard
@@ -318,26 +321,71 @@
                 var taskId = $(this).data('task-id');
                 var button = $(this);
 
-                $.ajax({
-                    url: '@Url.Action("Retry", "Tasks")',
-                    type: 'POST',
-                    data: { id: taskId },
-                    dataType: 'json',
-                    success: function (response) {
-                        console.log('Respuesta recibida:', response);
-                        if (response && response.success === true) {
-                            alert('Tarea agregada a la cola para reintento');
-                            location.reload();
-                        } else {
-                            var errorMessage = (response && response.message) ? response.message : 'Error desconocido';
-                            alert('Error: ' + errorMessage);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('Error AJAX:', xhr.responseText);
-                        console.log('Status:', status);
-                        console.log('Error:', error);
-                        alert('Error al procesar la solicitud: ' + error);
+                // Mostrar confirmación con SweetAlert2
+                Swal.fire({
+                    title: '¿Reintentar tarea?',
+                    text: '¿Estás seguro de que deseas reintentar esta tarea fallida?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, reintentar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#F59E0B',
+                    cancelButtonColor: '#6B7280'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Deshabilitar botón durante la operación
+                        button.prop('disabled', true);
+                        button.text('Reintentando...');
+                        
+                        $.ajax({
+                            url: '@Url.Action("Retry", "Tasks")',
+                            type: 'POST',
+                            data: { id: taskId },
+                            dataType: 'json',
+                            success: function (response) {
+                                console.log('Respuesta recibida:', response);
+                                if (response && response.success === true) {
+                                    Swal.fire({
+                                        title: '¡Éxito!',
+                                        text: 'Tarea agregada a la cola para reintento exitosamente',
+                                        icon: 'success',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#10B981',
+                                        timer: 2000,
+                                        timerProgressBar: true
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    var errorMessage = (response && response.message) ? response.message : 'Error desconocido';
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: 'Error: ' + errorMessage,
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#EF4444'
+                                    });
+                                    // Restaurar botón
+                                    button.prop('disabled', false);
+                                    button.text('Reintentar');
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log('Error AJAX:', xhr.responseText);
+                                console.log('Status:', status);
+                                console.log('Error:', error);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error al procesar la solicitud: ' + error,
+                                    icon: 'error',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                // Restaurar botón
+                                button.prop('disabled', false);
+                                button.text('Reintentar');
+                            }
+                        });
                     }
                 });
             });

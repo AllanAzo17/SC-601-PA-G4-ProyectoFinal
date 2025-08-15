@@ -3,12 +3,28 @@
     ViewBag.Title = "Historial de Tarea";
     var task = ViewBag.Task as ProyectoFinal.Data.Task;
 
-    
-    var lastErrorLog = Model
+    var lastLog = Model
         .OrderByDescending(l => l.ExecutionStart)
-        .FirstOrDefault(l => l.Success == false && !string.IsNullOrEmpty(l.ErrorMessage));
+        .FirstOrDefault();
 
-    var lastErrorMessage = lastErrorLog?.ErrorMessage ?? "";
+    string lastMessage = "";
+    if (lastLog != null)
+    {
+        if (lastLog.Success == true)
+        {
+            lastMessage = $"Tarea '{task.Title}' procesada exitosamente el {lastLog.ExecutionEnd?.ToString("dd/MM/yyyy HH:mm:ss")}";
+        }
+        else
+        {
+            lastMessage = lastLog.ErrorMessage ?? "Error desconocido en la ejecución";
+        }
+    }
+    else
+    {
+        lastMessage = $"No hay historial de ejecución para la tarea '{task.Title}'";
+    }
+    
+    var userEmail = User.Identity.Name;
 }
 
 <div class="space-y-6">
@@ -20,19 +36,27 @@
                 <p class="mt-2 text-sm text-gray-600">Registro detallado de todas las ejecuciones de esta tarea</p>
             </div>
             <div class="mt-4 sm:mt-0 flex gap-3">
-                <a href="@Url.Action("Index", "Queue")" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <a href="@Url.Action("History", "Queue")" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    Volver a Cola
+                    Volver al Historial
                 </a>
 
-                <!-- Botón para abrir el modal con título y error exactos -->
+                <!-- Botón para abrir el modal con título y mensaje -->
                 <button id="openContact" type="button"
                         data-title="@task.Title"
-                        data-error="@lastErrorMessage"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                    Enviar correo
+                        data-error="@lastMessage"
+                        @if (string.IsNullOrEmpty(userEmail)) { <text>disabled</text> }
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md @if (string.IsNullOrEmpty(userEmail)) { <text>text-gray-400 bg-gray-200 cursor-not-allowed</text> } else { <text>text-white bg-blue-600 hover:bg-blue-700</text> } transition-colors">
+                    @if (string.IsNullOrEmpty(userEmail))
+                    {
+                        <text>Inicia sesión para enviar correo</text>
+                    }
+                    else
+                    {
+                        <text>Enviar correo</text>
+                    }
                 </button>
             </div>
         </div>
@@ -165,7 +189,7 @@
     <!-- Contenido -->
     <div class="relative mx-auto mt-16 w-full max-w-lg bg-white rounded-xl shadow-lg">
         <div class="flex items-center justify-between px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold">Enviar correo</h3>
+            <h3 class="text-lg font-semibold">Enviar información por correo</h3>
             <button id="contactClose" type="button" class="text-gray-500 hover:text-gray-700">✕</button>
         </div>
 
@@ -176,24 +200,17 @@
             <form id="contactForm">
                 <div class="space-y-4">
                     <div>
-                        <label for="contact-name" class="block text-sm font-medium text-gray-700">Nombre</label>
-                        <input type="text" id="contact-name" name="name" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                    </div>
-                    <div>
                         <label for="contact-email" class="block text-sm font-medium text-gray-700">Email</label>
                         <input type="email" id="contact-email" name="email" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                    </div>
-                    <div>
-                        <label for="contact-subject" class="block text-sm font-medium text-gray-700">Asunto</label>
-                        <input type="text" id="contact-subject" name="subject" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                               value="@userEmail"
+                               readonly
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 text-gray-500" />
                     </div>
                     <div>
                         <label for="contact-message" class="block text-sm font-medium text-gray-700">Mensaje</label>
                         <textarea id="contact-message" name="message" rows="4" required
-                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                                  readonly
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 text-gray-500"></textarea>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-2">
@@ -219,7 +236,7 @@
     <script>
 (function () {
     
-    emailjs.init("DvkQr9T-CzO1LF4kv");
+    emailjs.init("6FbwcGwmt9uhUyvxN");
 
     const modal    = document.getElementById('contactModal');
     const openBtn  = document.getElementById('openContact');
@@ -230,9 +247,7 @@
     const spinner  = document.getElementById('contact-spinner');
     const alertBox = document.getElementById('contact-alert');
 
-    const nameEl   = document.getElementById('contact-name');
     const emailEl  = document.getElementById('contact-email');
-    const subjEl   = document.getElementById('contact-subject');
     const msgEl    = document.getElementById('contact-message');
 
     function showAlert(message, type) {
@@ -245,9 +260,14 @@
     }
 
     function openModal() {
+        const email = emailEl.value;
+        if (!email) {
+            showAlert('Error: Debes estar logueado para enviar correos', 'error');
+            return;
+        }
         
-        subjEl.value = openBtn.dataset.title || '';
-        msgEl.value  = openBtn.dataset.error || '';
+        msgEl.value = openBtn.dataset.error || '';
+        
         modal.classList.remove('hidden');
     }
     function closeModal() {
@@ -264,43 +284,40 @@
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const name    = nameEl.value.trim();
         const email   = emailEl.value.trim();
-        const subject = subjEl.value.trim();   
         const message = msgEl.value.trim();    
 
-        if (!name || !email || !subject || !message) {
-            showAlert('Por favor completa todos los campos', 'error');
+        if (!email) {
+            showAlert('Error: No se pudo obtener el email del usuario', 'error');
             return;
         }
 
-        
-        const re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
-        if (!re.test(email.toLowerCase())) {
-            showAlert('Por favor ingresa un email válido', 'error');
+        if (!message) {
+            showAlert('Error: No hay mensaje para enviar', 'error');
             return;
         }
 
+        const emailName = email.split('@@')[0];
+        const name = emailName.charAt(0).toUpperCase() + emailName.slice(1);
         
-        if (Math.random() < 0.3) {
-            showAlert('Error simulado del 30% al enviar el mensaje.', 'error');
-            return;
-        }
+        const subject = openBtn.dataset.title || 'Información de Tarea';
 
         spinner.classList.remove('hidden');
         alertBox.classList.add('hidden');
 
-        emailjs.send("service_lhi6zid", "template_eesy2nr", {
+        emailjs.send("service_f72m9lx", "template_9z6bomw", {
             from_name: name,
             reply_to: email,
+            email: email,
             subject: subject,  
-            message: message,   
-            to_email: "theejosh2@@gmail.com" 
+            message: message
         })
         .then(function () {
             spinner.classList.add('hidden');
-            showAlert('¡Mensaje enviado con éxito! Me pondré en contacto contigo pronto.', 'success');
+            showAlert('¡Información enviada con éxito! El equipo técnico será notificado.', 'success');
             form.reset();
+            emailEl.value = '@@userEmail';
+            closeModal();
         }, function (error) {
             spinner.classList.add('hidden');
             showAlert('Error al enviar el mensaje: ' + (error && error.text ? error.text : error), 'error');

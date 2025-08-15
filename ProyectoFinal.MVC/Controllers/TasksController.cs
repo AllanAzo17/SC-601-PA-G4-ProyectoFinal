@@ -151,6 +151,32 @@ namespace ProyectoFinal.MVC.Controllers
             return RedirectToAction("Index");
         }
 
+        // POST: Tasks/DeleteAjax/5
+        [HttpPost]
+        public ActionResult DeleteAjax(int id)
+        {
+            try
+            {
+                var task = taskBusiness.Get(id).FirstOrDefault();
+                if (task == null)
+                {
+                    return Json(new { success = false, message = "Tarea no encontrada" });
+                }
+
+                if (task.Status == "En Proceso")
+                {
+                    return Json(new { success = false, message = "No se puede eliminar una tarea que está en proceso." });
+                }
+
+                taskBusiness.Delete(id);
+                return Json(new { success = true, message = "Tarea eliminada exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         // POST: Tasks/Enqueue/5
         [HttpPost]
         public ActionResult Enqueue(int id)

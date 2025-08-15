@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="border-b border-gray-200 pb-4">
         <h1 class="text-3xl font-bold text-gray-900">Cola de Tareas</h1>
-        <p class="mt-2 text-sm text-gray-600">Sistema simple de gestión de tareas en cola</p>
+        <p class="mt-2 text-sm text-gray-600">Sistema de gestión de tareas en cola</p>
     </div>
 
     <!-- Processor Controls -->
@@ -30,8 +30,19 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-700">Estado del Procesador:</span>
-                        <span id="processorStatus" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(isProcessorRunning ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
-                            @(isProcessorRunning ? "Ejecutándose" : "Detenido")
+                        <span id="processorStatus" class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-full @(isProcessorRunning ? "bg-green-100 text-green-800 animate-pulse" : "bg-red-100 text-red-800")">
+                            @if (isProcessorRunning)
+                            {
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="font-medium">Ejecutándose</span>
+                            }
+                            else
+                            {
+                                <span class="font-medium">Detenido</span>
+                            }
                         </span>
                     </div>
 
@@ -270,9 +281,11 @@
 
                         var statusSpan = $('#processorStatus');
                         if (isRunning) {
-                            statusSpan.removeClass('bg-red-100 text-red-800').addClass('bg-green-100 text-green-800').text('Ejecutándose');
+                            statusSpan.removeClass('bg-red-100 text-red-800').addClass('bg-green-100 text-green-800 animate-pulse');
+                            statusSpan.html('<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-green-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="font-medium">Ejecutándose</span>');
                         } else {
-                            statusSpan.removeClass('bg-green-100 text-green-800').addClass('bg-red-100 text-red-800').text('Detenido');
+                            statusSpan.removeClass('bg-green-100 text-green-800 animate-pulse').addClass('bg-red-100 text-red-800');
+                            statusSpan.html('<span class="font-medium">Detenido</span>');
                         }
 
                         $('#queueCount').text(queueCount);
@@ -468,7 +481,21 @@
             // Event handler unificado para el botón del procesador
             $(document).on('click', '#processorButton', function() {
                 var button = $(this);
+                var buttonText = button.find('#processorButtonText');
+                var buttonIcon = button.find('svg path');
                 var isCurrentlyRunning = processorRunning === true;
+                var originalText = buttonText.text();
+                var originalIcon = buttonIcon.attr('d');
+                
+                // Deshabilitar botón y mostrar spinner
+                button.prop('disabled', true);
+                if (isCurrentlyRunning) {
+                    buttonText.text('Deteniendo...');
+                    buttonIcon.attr('d', 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15');
+                } else {
+                    buttonText.text('Iniciando...');
+                    buttonIcon.attr('d', 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15');
+                }
                 
                 if (isCurrentlyRunning) {
                     // Detener procesador
@@ -495,6 +522,12 @@
                         },
                         error: function(xhr, status, error) {
                             alert('Error al detener el procesador: ' + error);
+                        },
+                        complete: function() {
+                            // Restaurar botón
+                            button.prop('disabled', false);
+                            buttonText.text(originalText);
+                            buttonIcon.attr('d', originalIcon);
                         }
                     });
                 } else {
@@ -524,6 +557,12 @@
                         },
                         error: function(xhr, status, error) {
                             alert('Error al iniciar el procesador: ' + error);
+                        },
+                        complete: function() {
+                            // Restaurar botón
+                            button.prop('disabled', false);
+                            buttonText.text(originalText);
+                            buttonIcon.attr('d', originalIcon);
                         }
                     });
                 }
